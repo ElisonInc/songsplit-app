@@ -1,6 +1,6 @@
 {
-  "name": "SplitSheet - Session Agreements",
-  "short_name": "SplitSheet",
+  "name": "SongSplit - Music Ownership Agreements",
+  "short_name": "SongSplit",
   "description": "Real-time collaborative split sheet agreements for music creators",
   "start_url": "/",
   "display": "standalone",

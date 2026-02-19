@@ -127,7 +127,7 @@ self.addEventListener('push', (event) => {
   };
 
   event.waitUntil(
-    self.registration.showNotification('SplitSheet', options)
+    self.registration.showNotification('SongSplit', options)
   );
 });
 

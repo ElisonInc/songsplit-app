@@ -1,4 +1,4 @@
-// SplitSheet Configuration - Music Ownership Agreement Engine
+// SongSplit Configuration - Music Ownership Agreement Engine
 // Repository: https://github.com/ElisonInc/splitsheet-app
 
 const SUPABASE_CONFIG = {

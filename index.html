@@ -13,7 +13,7 @@
     <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-72x72.png">
     
-    <title>SplitSheet | Music Ownership Agreements</title>
+    <title>SongSplit | Music Ownership Agreements</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -151,7 +151,7 @@
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-2">
                     <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center font-bold text-black text-sm">S</div>
-                    <span class="font-semibold text-lg tracking-tight">SplitSheet</span>
+                    <span class="font-semibold text-lg tracking-tight">SongSplit</span>
                 </div>
                 <div class="flex items-center gap-3">
                     <div id="syncStatus" class="sync-indicator" title="Realtime Connected"></div>
@@ -239,7 +239,7 @@
         <div id="authScreen" class="hidden-screen pt-20 px-6 min-h-screen">
             <div class="max-w-sm mx-auto">
                 <h2 class="text-3xl font-bold mb-2" id="authTitle">Sign In</h2>
-                <p class="text-gray-400 mb-8" id="authSubtitle">Welcome back to SplitSheet</p>
+                <p class="text-gray-400 mb-8" id="authSubtitle">Welcome back to SongSplit</p>
                 
                 <form id="authForm" onsubmit="app.handleAuth(event)" class="space-y-4">
                     <div id="nameField" class="hidden">
@@ -678,7 +678,7 @@
             updateAuthUI() {
                 const isSignUp = this.data.authMode === 'signup';
                 document.getElementById('authTitle').textContent = isSignUp ? 'Create Account' : 'Sign In';
-                document.getElementById('authSubtitle').textContent = isSignUp ? 'Start creating ownership agreements' : 'Welcome back to SplitSheet';
+                document.getElementById('authSubtitle').textContent = isSignUp ? 'Start creating ownership agreements' : 'Welcome back to SongSplit';
                 document.getElementById('authSubmitBtn').textContent = isSignUp ? 'Create Account' : 'Sign In';
                 document.getElementById('authSwitchText').textContent = isSignUp ? 'Already have an account?' : "Don't have an account?";
                 document.getElementById('authSwitchBtn').textContent = isSignUp ? 'Sign In' : 'Sign Up';
@@ -1720,7 +1720,7 @@
 
                 doc.setFontSize(10);
                 doc.setTextColor(100, 100, 100);
-                doc.text("SplitSheet | split sheet and ownership rights", pageWidth/2, 28, { align: 'center' });
+                doc.text("SongSplit | Music Ownership Agreements", pageWidth/2, 28, { align: 'center' });
 
                 // Song Info
                 doc.setFontSize(12);
