@@ -1,0 +1,1859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <meta name="description" content="Real-time music ownership agreements. Define who owns what at the moment of creation.">
+    
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-72x72.png">
+    
+    <title>SongSplit | Music Ownership Agreements</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2.39.0"></script>
+    <script src="/js/config.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+        
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+            background: #000; color: #fff; overflow-x: hidden;
+        }
+        
+        .glass {
+            background: rgba(28, 28, 30, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .ios-input {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white; transition: all 0.3s;
+        }
+        
+        .ios-input:focus { background: rgba(255, 255, 255, 0.12); border-color: #30D158; outline: none; }
+        .ios-input:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .signature-pad { background: #fff; border-radius: 12px; cursor: crosshair; touch-action: none; }
+        
+        .slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .fade-in { animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #30D158 0%, #007AFF 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        
+        .btn-primary {
+            background: #30D158; color: #000; font-weight: 600;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+        .btn-primary:active { transform: scale(0.96); opacity: 0.9; }
+        .btn-primary:disabled { background: #333; color: #666; cursor: not-allowed; transform: none; }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1); color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.2s;
+        }
+        .btn-secondary:active { background: rgba(255, 255, 255, 0.15); }
+        
+        .percentage-ring {
+            background: conic-gradient(#30D158 calc(var(--percent) * 1%), #333 calc(var(--percent) * 1%));
+            border-radius: 50%; transition: background 0.5s ease;
+        }
+        
+        .hidden-screen { display: none !important; }
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+        
+        .sync-indicator {
+            width: 8px; height: 8px; border-radius: 50%; background: #30D158;
+            box-shadow: 0 0 0 rgba(48, 209, 88, 0.4); animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(48, 209, 88, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(48, 209, 88, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(48, 209, 88, 0); }
+        }
+        .sync-indicator.offline { background: #FF3B30; animation: none; box-shadow: none; }
+        .sync-indicator.syncing { background: #FF9500; animation: pulse 1s infinite; }
+        
+        .toast {
+            position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+            background: rgba(40, 40, 40, 0.95); color: #fff; padding: 12px 20px;
+            border-radius: 10px; font-size: 14px; z-index: 100; animation: fadeIn 0.2s ease;
+            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
+        }
+        .toast.success { background: rgba(48, 209, 88, 0.95); color: #000; }
+        .toast.error { background: rgba(255, 59, 48, 0.95); }
+        
+        .tab-active { color: #30D158; border-bottom: 2px solid #30D158; }
+        .tab-inactive { color: #888; border-bottom: 2px solid transparent; }
+        
+        .session-card { transition: all 0.2s; }
+        .session-card:hover { background: rgba(255,255,255,0.05); }
+        
+        .skeleton {
+            background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+            background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px;
+        }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        
+        .avatar {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: linear-gradient(135deg, #30D158, #007AFF);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 600; color: #000; font-size: 16px;
+        }
+        
+        .auth-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px; padding: 14px 16px; color: white;
+            width: 100%; font-size: 16px; transition: all 0.2s;
+        }
+        .auth-input:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #30D158; outline: none;
+        }
+        
+        .saved-badge {
+            background: #30D158; color: #000;
+            padding: 2px 8px; border-radius: 12px;
+            font-size: 11px; font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-black text-white min-h-screen">
+
+    <div id="app" class="max-w-md mx-auto min-h-screen relative bg-black pb-20">
+        
+        <!-- Header -->
+        <header class="fixed top-0 left-0 right-0 z-50 glass px-4 py-3 max-w-md mx-auto">
+            <div class="flex justify-between items-center">
+                <a href="/" class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center font-bold text-black text-sm">S</div>
+                    <span class="font-semibold text-lg tracking-tight">SongSplit</span>
+                </a>
+                <div class="flex items-center gap-3">
+                    <div id="syncStatus" class="sync-indicator" title="Realtime Connected"></div>
+                    <button id="userMenuBtn" onclick="app.toggleUserMenu()" class="hidden">
+                        <div id="userAvatar" class="avatar text-sm"></div>
+                    </button>
+                    <button id="loginBtn" onclick="app.showAuth()" class="text-sm text-green-400 font-medium">Sign In</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- User Menu Dropdown -->
+        <div id="userMenu" class="hidden-screen fixed top-14 right-4 z-50 glass rounded-2xl p-2 min-w-[180px]">
+            <div class="px-3 py-2 border-b border-white/10 mb-1">
+                <div id="menuUserName" class="font-semibold text-sm"></div>
+                <div id="menuUserEmail" class="text-xs text-gray-400 truncate"></div>
+            </div>
+            <button onclick="app.showProfile()" class="w-full text-left px-3 py-2 text-sm hover:bg-white/5 rounded-lg transition">My Profile</button>
+            <button onclick="app.showMySessions()" class="w-full text-left px-3 py-2 text-sm hover:bg-white/5 rounded-lg transition">My Sessions</button>
+            <div class="border-t border-white/10 mt-1 pt-1">
+                <button onclick="app.signOut()" class="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-white/5 rounded-lg transition">Sign Out</button>
+            </div>
+        </div>
+
+        <!-- Landing Screen -->
+        <div id="landingScreen" class="pt-20 px-6 min-h-screen flex flex-col slide-up">
+            <div class="flex-1">
+                <h1 class="text-4xl font-bold leading-tight mb-4">
+                    Lock in <span class="gradient-text">ownership</span> before the session ends.
+                </h1>
+                <p class="text-gray-400 text-base leading-relaxed mb-6">
+                    Create real-time music ownership agreements. Define Master & Publishing rights while the vibe is fresh.
+                </p>
+                
+                <!-- Auth CTA for non-logged in users -->
+                <div id="authCTA" class="hidden mb-6 p-4 rounded-2xl bg-gradient-to-r from-green-500/20 to-blue-500/20 border border-white/10">
+                    <p class="text-sm mb-3">Sign in to save your agreements and access them from any device.</p>
+                    <button onclick="app.showAuth()" class="btn-primary w-full py-3 rounded-xl text-sm">Sign In / Create Account</button>
+                </div>
+                
+                <div class="space-y-3 mb-6">
+                    <div class="flex items-start gap-3 p-4 rounded-2xl bg-white/5">
+                        <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-lg">⚡</div>
+                        <div>
+                            <h3 class="font-semibold mb-1 text-sm">Real-Time Agreements</h3>
+                            <p class="text-xs text-gray-400">All contributors define ownership while creating. No disputes later.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 p-4 rounded-2xl bg-white/5">
+                        <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-lg">✓</div>
+                        <div>
+                            <h3 class="font-semibold mb-1 text-sm">Legally Binding</h3>
+                            <p class="text-xs text-gray-400">Digital signatures + PDF agreements recognized by PROs & labels.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 p-4 rounded-2xl bg-white/5">
+                        <div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 text-lg">☁</div>
+                        <div>
+                            <h3 class="font-semibold mb-1 text-sm">Master + Publishing</h3>
+                            <p class="text-xs text-gray-400">Define both rights clearly. No confusion, just clarity.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="space-y-3 pb-8">
+                <!-- Resume Session Button (shown if there's an active session) -->
+                <button onclick="app.resumeSession()" id="resumeSessionBtn" class="hidden w-full py-4 rounded-2xl bg-blue-500/20 border border-blue-500/30 text-blue-400 font-semibold text-lg">
+                    Resume Last Session
+                </button>
+                
+                <button onclick="app.createSession()" class="btn-primary w-full py-4 rounded-2xl text-lg">
+                    New Session
+                </button>
+                <button onclick="app.joinSession()" class="btn-secondary w-full py-4 rounded-2xl text-lg">
+                    Join Session
+                </button>
+                <button onclick="app.showMySessions()" id="mySessionsBtn" class="hidden btn-secondary w-full py-3 rounded-2xl text-sm">
+                    My Sessions
+                </button>
+            </div>
+        </div>
+
+        <!-- Auth Screen -->
+        <div id="authScreen" class="hidden-screen pt-20 px-6 min-h-screen">
+            <div class="max-w-sm mx-auto">
+                <h2 class="text-3xl font-bold mb-2" id="authTitle">Sign In</h2>
+                <p class="text-gray-400 mb-8" id="authSubtitle">Welcome back to SongSplit</p>
+                
+                <form id="authForm" onsubmit="app.handleAuth(event)" class="space-y-4">
+                    <div id="nameField" class="hidden">
+                        <label class="block text-sm text-gray-400 mb-2">Legal Name</label>
+                        <input type="text" id="authName" class="auth-input" placeholder="Your legal name" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">Email</label>
+                        <input type="email" id="authEmail" class="auth-input" placeholder="you@example.com" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">Password</label>
+                        <input type="password" id="authPassword" class="auth-input" placeholder="••••••••" required minlength="6">
+                    </div>
+                    
+                    <button type="submit" id="authSubmitBtn" class="btn-primary w-full py-4 rounded-2xl text-lg mt-6">
+                        Sign In
+                    </button>
+                </form>
+                
+                <div class="mt-6 text-center">
+                    <p class="text-sm text-gray-400">
+                        <span id="authSwitchText">Don't have an account?</span>
+                        <button onclick="app.toggleAuthMode()" id="authSwitchBtn" class="text-green-400 font-medium ml-1">Sign Up</button>
+                    </p>
+                </div>
+                
+                <div class="mt-8 pt-6 border-t border-white/10">
+                    <button onclick="app.showLanding()" class="w-full py-3 text-gray-400 text-sm">
+                        ← Continue without signing in
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Screen -->
+        <div id="profileScreen" class="hidden-screen pt-20 px-6 min-h-screen">
+            <div class="max-w-sm mx-auto">
+                <div class="flex items-center gap-4 mb-8">
+                    <div id="profileAvatar" class="avatar w-16 h-16 text-2xl"></div>
+                    <div>
+                        <h2 class="text-2xl font-bold">My Profile</h2>
+                        <p class="text-sm text-gray-400">Your default contributor info</p>
+                    </div>
+                </div>
+                
+                <form id="profileForm" onsubmit="app.saveProfile(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">Legal Name</label>
+                        <input type="text" id="profileName" class="auth-input" placeholder="Your legal name">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">Artist Name (Optional)</label>
+                        <input type="text" id="profileArtistName" class="auth-input" placeholder="Your artist name">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">Email</label>
+                        <input type="email" id="profileEmail" class="auth-input" disabled>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">PRO Affiliation</label>
+                            <select id="profilePRO" class="auth-input">
+                                <option value="ASCAP">ASCAP</option>
+                                <option value="BMI">BMI</option>
+                                <option value="SESAC">SESAC</option>
+                                <option value="GMR">GMR</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">IPI Number</label>
+                            <input type="text" id="profileIPI" class="auth-input" placeholder="IPI #">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary w-full py-4 rounded-2xl text-lg mt-6">
+                        Save Profile
+                    </button>
+                </form>
+                
+                <button onclick="app.showLanding()" class="w-full py-3 mt-6 text-gray-400 text-sm">
+                    ← Back to Home
+                </button>
+            </div>
+        </div>
+
+        <!-- My Sessions Screen -->
+        <div id="mySessionsScreen" class="hidden-screen pt-20 px-4 min-h-screen">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold">My Sessions</h2>
+                <button onclick="app.createSession()" class="btn-primary px-4 py-2 rounded-xl text-sm">+ New</button>
+            </div>
+            
+            <!-- Tabs -->
+            <div class="flex gap-6 mb-6 border-b border-white/10">
+                <button onclick="app.switchTab('active')" id="tabActive" class="tab-active pb-3 text-sm font-medium transition">Active</button>
+                <button onclick="app.switchTab('finalized')" id="tabFinalized" class="tab-inactive pb-3 text-sm font-medium transition">Finalized</button>
+                <button onclick="app.switchTab('saved')" id="tabSaved" class="tab-inactive pb-3 text-sm font-medium transition">Saved</button>
+            </div>
+            
+            <!-- Sessions List -->
+            <div id="sessionsList" class="space-y-3">
+                <div class="text-center py-12 text-gray-400">
+                    <div class="text-4xl mb-3">🎵</div>
+                    <p>No sessions yet</p>
+                    <button onclick="app.createSession()" class="text-green-400 text-sm mt-2">Create your first</button>
+                </div>
+            </div>
+            
+            <button onclick="app.showLanding()" class="w-full py-3 mt-8 text-gray-400 text-sm">
+                ← Back to Home
+            </button>
+        </div>
+
+        <!-- Session Screen - Song Ownership Agreement -->
+        <div id="sessionScreen" class="hidden-screen pt-20 px-4">
+            <!-- Back to Home Button -->
+            <button onclick="app.goHome()" class="mb-4 flex items-center gap-2 text-gray-400 hover:text-white transition text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                Back to Home
+            </button>
+            
+            <div class="mb-6">
+                <input type="text" id="songTitle" placeholder="Song Title" 
+                       class="ios-input w-full text-2xl font-bold px-4 py-3 rounded-xl mb-2"
+                       onchange="app.updateSongTitle(this.value)">
+                <div class="flex justify-between items-center text-sm text-gray-400 px-1">
+                    <span id="dateDisplay"></span>
+                    <span id="sessionIdDisplay" class="font-mono text-xs opacity-50"></span>
+                </div>
+            </div>
+
+            <!-- Save Session Button (for logged in users) -->
+            <button id="saveSessionBtn" onclick="app.saveSessionToProfile()" class="hidden mb-4 w-full py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-gray-300 hover:bg-white/10 transition flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+                Save to My Sessions
+            </button>
+
+            <div class="flex justify-center mb-8">
+                <div class="relative w-32 h-32">
+                    <div id="progressRing" class="percentage-ring w-full h-full" style="--percent: 0">
+                        <div class="absolute inset-2 bg-black rounded-full flex flex-col items-center justify-center">
+                            <span id="totalPercent" class="text-3xl font-bold">0%</span>
+                            <span class="text-xs text-gray-400">Allocated</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4 flex justify-between items-center px-1">
+                <h2 class="font-semibold text-lg">Contributors</h2>
+                <button onclick="app.inviteWriter()" class="text-green-400 text-sm font-medium flex items-center gap-1">
+                    + Add Contributor
+                </button>
+            </div>
+
+            <div id="collaboratorsList" class="space-y-3 mb-6">
+                <!-- Dynamic content -->
+            </div>
+
+            <div id="validationMsg" class="hidden text-center text-sm text-yellow-500 mb-4 font-medium">
+                Ownership must total exactly 100%
+            </div>
+
+            <div id="finalizedBanner" class="hidden mb-4 p-4 bg-green-500/20 border border-green-500/30 rounded-xl text-center">
+                <div class="text-green-400 font-semibold mb-1">✓ Agreement Finalized</div>
+                <div class="text-xs text-gray-400" id="finalizedTime"></div>
+                <button onclick="app.downloadPDF()" class="mt-2 text-xs text-green-400 underline">Download Agreement PDF</button>
+            </div>
+
+            <div class="fixed bottom-6 left-0 right-0 px-6 max-w-md mx-auto space-y-3">
+                <button id="finalizeBtn" onclick="app.finalizeSheet()" disabled 
+                        class="w-full py-4 rounded-2xl bg-gray-800 text-gray-500 font-semibold transition-all duration-300">
+                    Waiting for 100%...
+                </button>
+                <div class="flex gap-3">
+                    <button onclick="app.shareSession()" class="btn-secondary flex-1 py-3 rounded-2xl text-sm flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+                        Share
+                    </button>
+                    <button onclick="app.leaveSession()" class="btn-secondary flex-1 py-3 rounded-2xl text-sm text-red-400">
+                        Leave
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Signature Screen -->
+        <div id="signatureScreen" class="hidden-screen fixed inset-0 bg-black z-50 flex flex-col">
+            <div class="p-6 pt-12 border-b border-white/10">
+                <h2 class="text-2xl font-bold mb-2">Sign Agreement</h2>
+                <p class="text-gray-400">By signing, you acknowledge the ownership percentages and rights outlined above.</p>
+            </div>
+            
+            <div class="flex-1 p-6 flex flex-col">
+                <!-- Electronic Signature Consent -->
+                <div class="mb-4 p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" id="signatureConsent" class="mt-1 w-5 h-5 rounded border-gray-600 bg-gray-800 text-green-500 focus:ring-green-500">
+                        <div class="text-sm">
+                            <p class="font-medium text-yellow-400 mb-1">Electronic Signature Consent</p>
+                            <p class="text-gray-300">I agree that my electronic signature is legally binding and carries the same weight as a handwritten signature. I understand this agreement will be used for PRO registration, royalty distributions, and licensing.</p>
+                        </div>
+                    </label>
+                </div>
+                
+                <div class="flex-1 bg-gray-900 rounded-2xl p-4 mb-4">
+                    <canvas id="signaturePad" class="signature-pad w-full h-full"></canvas>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="app.clearSignature()" class="btn-secondary flex-1 py-4 rounded-2xl">Clear</button>
+                    <button onclick="app.saveSignature()" class="btn-primary flex-1 py-4 rounded-2xl">Confirm Sign</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Share Screen -->
+        <div id="shareScreen" class="hidden-screen fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex flex-col items-center justify-center p-6">
+            <div class="glass rounded-3xl p-8 w-full max-w-sm text-center">
+                <h3 class="text-xl font-bold mb-2">Scan to Join Session</h3>
+                <p class="text-sm text-gray-400 mb-6">Contributors can scan to add their ownership info</p>
+                <div id="qrcode" class="flex justify-center mb-6 bg-white p-4 rounded-2xl"></div>
+                <div class="text-xs text-gray-500 break-all font-mono mb-6" id="shareLink"></div>
+                <button onclick="app.copyShareLink()" class="btn-secondary w-full py-3 rounded-xl mb-3 text-sm">Copy Link</button>
+                <button onclick="app.closeShare()" class="btn-primary w-full py-3 rounded-xl">Close</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ============================================
+        // MUSIC OWNERSHIP AGREEMENT ENGINE
+        // ============================================
+        
+        const supabaseClient = supabase.createClient(
+            SUPABASE_CONFIG.URL,
+            SUPABASE_CONFIG.ANON_KEY,
+            {
+                realtime: { params: { eventsPerSecond: 10 } },
+                db: { schema: 'public' },
+                auth: {
+                    autoRefreshToken: true,
+                    persistSession: true,
+                    detectSessionInUrl: true
+                }
+            }
+        );
+
+        const app = {
+            // State - Music Ownership Model
+            data: {
+                sessionId: null,          // The Session (recording session)
+                songTitle: '',            // The Song being created
+                createdAt: null,
+                contributors: [],         // Contributors (artists, producers, writers)
+                currentUserId: null,      // Current user's contributor entry
+                isFinalized: false,       // Agreement finalized
+                finalizedAt: null,
+                sessionHash: null,        // Verification hash
+                realtimeChannel: null,
+                deviceId: null,
+                isOnline: navigator.onLine,
+                pendingChanges: [],
+                currentUser: null,
+                profile: null,
+                authMode: 'signin',
+                currentTab: 'active',
+                signingId: null
+            },
+
+            // ============================================
+            // INITIALIZATION
+            // ============================================
+
+            async init() {
+                this.data.deviceId = this.getDeviceId();
+                
+                window.addEventListener('online', () => this.handleOnline());
+                window.addEventListener('offline', () => this.handleOffline());
+                
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session) {
+                    await this.setUser(session.user);
+                }
+                
+                supabaseClient.auth.onAuthStateChange(async (event, session) => {
+                    if (event === 'SIGNED_IN' && session) {
+                        await this.setUser(session.user);
+                        this.showToast('Signed in successfully!', 'success');
+                    } else if (event === 'SIGNED_OUT') {
+                        this.clearUser();
+                        this.showToast('Signed out', 'info');
+                    }
+                });
+                
+                const params = new URLSearchParams(window.location.search);
+                const sessionId = params.get('session');
+                const redirect = params.get('redirect');
+                
+                if (sessionId) {
+                    await this.joinSessionById(sessionId);
+                } else if (redirect) {
+                    const redirectSessionId = redirect.match(/session=([A-Z0-9]+)/)?.[1];
+                    if (redirectSessionId) {
+                        await this.joinSessionById(redirectSessionId);
+                    }
+                }
+                
+                document.getElementById('dateDisplay').textContent = new Date().toLocaleDateString();
+                
+                window.addEventListener('beforeunload', () => {
+                    if (app.data.realtimeChannel) {
+                        supabaseClient.removeChannel(app.data.realtimeChannel);
+                    }
+                });
+                
+                const pending = localStorage.getItem(APP_CONFIG.STORAGE_KEYS.PENDING_CHANGES);
+                if (pending) {
+                    this.data.pendingChanges = JSON.parse(pending);
+                }
+                
+                this.checkForActiveSession();
+                
+                document.addEventListener('click', (e) => {
+                    const menu = document.getElementById('userMenu');
+                    const btn = document.getElementById('userMenuBtn');
+                    if (!menu.contains(e.target) && !btn.contains(e.target)) {
+                        menu.classList.add('hidden-screen');
+                    }
+                });
+            },
+
+            getDeviceId() {
+                let deviceId = localStorage.getItem(APP_CONFIG.STORAGE_KEYS.DEVICE_ID);
+                if (!deviceId) {
+                    deviceId = crypto.randomUUID();
+                    localStorage.setItem(APP_CONFIG.STORAGE_KEYS.DEVICE_ID, deviceId);
+                }
+                return deviceId;
+            },
+            
+            checkForActiveSession() {
+                const activeSession = localStorage.getItem(APP_CONFIG.STORAGE_KEYS.ACTIVE_SESSION);
+                const resumeBtn = document.getElementById('resumeSessionBtn');
+                if (activeSession && resumeBtn) {
+                    resumeBtn.classList.remove('hidden');
+                }
+            },
+            
+            async resumeSession() {
+                const activeSession = localStorage.getItem(APP_CONFIG.STORAGE_KEYS.ACTIVE_SESSION);
+                if (activeSession) {
+                    await this.loadSession(activeSession);
+                }
+            },
+
+            // ============================================
+            // AUTHENTICATION
+            // ============================================
+
+            async setUser(user) {
+                this.data.currentUser = user;
+                const { data: profile } = await supabaseClient
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
+                this.data.profile = profile;
+                this.updateUIForUser();
+            },
+
+            clearUser() {
+                this.data.currentUser = null;
+                this.data.profile = null;
+                this.updateUIForUser();
+            },
+
+            updateUIForUser() {
+                const user = this.data.currentUser;
+                const loginBtn = document.getElementById('loginBtn');
+                const userMenuBtn = document.getElementById('userMenuBtn');
+                const userAvatar = document.getElementById('userAvatar');
+                const authCTA = document.getElementById('authCTA');
+                const mySessionsBtn = document.getElementById('mySessionsBtn');
+                const saveSessionBtn = document.getElementById('saveSessionBtn');
+                const menuUserName = document.getElementById('menuUserName');
+                const menuUserEmail = document.getElementById('menuUserEmail');
+
+                if (user) {
+                    loginBtn.classList.add('hidden');
+                    userMenuBtn.classList.remove('hidden');
+                    authCTA.classList.add('hidden');
+                    mySessionsBtn.classList.remove('hidden');
+                    if (saveSessionBtn) saveSessionBtn.classList.remove('hidden');
+                    const initials = this.getInitials(this.data.profile?.legal_name || user.email);
+                    userAvatar.textContent = initials;
+                    menuUserName.textContent = this.data.profile?.legal_name || 'User';
+                    menuUserEmail.textContent = user.email;
+                } else {
+                    loginBtn.classList.remove('hidden');
+                    userMenuBtn.classList.add('hidden');
+                    authCTA.classList.remove('hidden');
+                    mySessionsBtn.classList.add('hidden');
+                    if (saveSessionBtn) saveSessionBtn.classList.add('hidden');
+                }
+            },
+
+            getInitials(name) {
+                if (!name) return '?';
+                return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+            },
+
+            toggleUserMenu() {
+                const menu = document.getElementById('userMenu');
+                menu.classList.toggle('hidden-screen');
+            },
+
+            showAuth() {
+                this.hideAllScreens();
+                document.getElementById('authScreen').classList.remove('hidden-screen');
+                this.updateAuthUI();
+            },
+
+            toggleAuthMode() {
+                this.data.authMode = this.data.authMode === 'signin' ? 'signup' : 'signin';
+                this.updateAuthUI();
+            },
+
+            updateAuthUI() {
+                const isSignUp = this.data.authMode === 'signup';
+                document.getElementById('authTitle').textContent = isSignUp ? 'Create Account' : 'Sign In';
+                document.getElementById('authSubtitle').textContent = isSignUp ? 'Start creating ownership agreements' : 'Welcome back to SongSplit';
+                document.getElementById('authSubmitBtn').textContent = isSignUp ? 'Create Account' : 'Sign In';
+                document.getElementById('authSwitchText').textContent = isSignUp ? 'Already have an account?' : "Don't have an account?";
+                document.getElementById('authSwitchBtn').textContent = isSignUp ? 'Sign In' : 'Sign Up';
+                document.getElementById('nameField').classList.toggle('hidden', !isSignUp);
+            },
+
+            async handleAuth(e) {
+                e.preventDefault();
+                const email = document.getElementById('authEmail').value;
+                const password = document.getElementById('authPassword').value;
+                const name = document.getElementById('authName').value;
+                const isSignUp = this.data.authMode === 'signup';
+
+                try {
+                    if (isSignUp) {
+                        const { data, error } = await supabaseClient.auth.signUp({
+                            email,
+                            password,
+                            options: { data: { full_name: name } }
+                        });
+                        if (error) throw error;
+                        this.showToast('Account created! Check your email.', 'success');
+                    } else {
+                        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                        if (error) throw error;
+                        this.showLanding();
+                    }
+                } catch (error) {
+                    this.showToast(error.message, 'error');
+                }
+            },
+
+            async signOut() {
+                await supabaseClient.auth.signOut();
+                document.getElementById('userMenu').classList.add('hidden-screen');
+                this.showLanding();
+            },
+
+            // ============================================
+            // PROFILE
+            // ============================================
+
+            async showProfile() {
+                if (!this.data.currentUser) {
+                    this.showAuth();
+                    return;
+                }
+                this.hideAllScreens();
+                document.getElementById('userMenu').classList.add('hidden-screen');
+                document.getElementById('profileScreen').classList.remove('hidden-screen');
+
+                const profile = this.data.profile;
+                if (profile) {
+                    document.getElementById('profileName').value = profile.legal_name || '';
+                    document.getElementById('profileArtistName').value = profile.artist_name || '';
+                    document.getElementById('profileEmail').value = this.data.currentUser.email;
+                    document.getElementById('profilePRO').value = profile.pro_affiliation || 'ASCAP';
+                    document.getElementById('profileIPI').value = profile.ipi_number || '';
+                    document.getElementById('profileAvatar').textContent = this.getInitials(profile.legal_name || this.data.currentUser.email);
+                }
+            },
+
+            async saveProfile(e) {
+                e.preventDefault();
+                if (!this.data.currentUser) return;
+
+                const updates = {
+                    legal_name: document.getElementById('profileName').value,
+                    artist_name: document.getElementById('profileArtistName').value,
+                    pro_affiliation: document.getElementById('profilePRO').value,
+                    ipi_number: document.getElementById('profileIPI').value
+                };
+
+                const { error } = await supabaseClient
+                    .from('profiles')
+                    .update(updates)
+                    .eq('id', this.data.currentUser.id);
+
+                if (error) {
+                    this.showToast('Error saving profile: ' + error.message, 'error');
+                } else {
+                    this.data.profile = { ...this.data.profile, ...updates };
+                    this.updateUIForUser();
+                    this.showToast('Profile saved!', 'success');
+                    this.showLanding();
+                }
+            },
+
+            // ============================================
+            // MY SESSIONS
+            // ============================================
+
+            async showMySessions() {
+                this.hideAllScreens();
+                document.getElementById('userMenu').classList.add('hidden-screen');
+                document.getElementById('mySessionsScreen').classList.remove('hidden-screen');
+                await this.loadMySessions();
+            },
+
+            async loadMySessions() {
+                if (!this.data.currentUser) {
+                    document.getElementById('sessionsList').innerHTML = `
+                        <div class="text-center py-12">
+                            <p class="text-gray-400 mb-4">Sign in to view your sessions</p>
+                            <button onclick="app.showAuth()" class="btn-primary px-6 py-3 rounded-xl">Sign In</button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const userId = this.data.currentUser.id;
+                const tab = this.data.currentTab;
+                let query;
+
+                if (tab === 'saved') {
+                    const { data: saved } = await supabaseClient
+                        .from('saved_sessions')
+                        .select('session_id, sessions(*)')
+                        .eq('user_id', userId);
+                    query = saved?.map(s => s.sessions) || [];
+                } else if (tab === 'finalized') {
+                    const { data: sessions } = await supabaseClient
+                        .from('sessions')
+                        .select('*, contributors!inner(*)')
+                        .eq('contributors.user_id', userId)
+                        .eq('finalized', true)
+                        .order('finalized_at', { ascending: false });
+                    query = sessions || [];
+                } else {
+                    const { data: sessions } = await supabaseClient
+                        .from('sessions')
+                        .select('*, contributors!inner(*)')
+                        .eq('contributors.user_id', userId)
+                        .eq('finalized', false)
+                        .order('created_at', { ascending: false });
+                    query = sessions || [];
+                }
+
+                this.renderSessionsList(query);
+            },
+
+            renderSessionsList(sessions) {
+                const container = document.getElementById('sessionsList');
+                if (!sessions || sessions.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-12 text-gray-400">
+                            <div class="text-4xl mb-3">🎵</div>
+                            <p>No ${this.data.currentTab} sessions</p>
+                            ${this.data.currentTab === 'active' ? '<button onclick="app.createSession()" class="text-green-400 text-sm mt-2">Create your first</button>' : ''}
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = sessions.map(session => `
+                    <div onclick="app.joinSessionById('${session.id}')" class="session-card glass rounded-2xl p-4 cursor-pointer">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h3 class="font-semibold text-lg">${session.song_title || 'Untitled Song'}</h3>
+                                <p class="text-xs text-gray-400">Session: ${session.id}</p>
+                            </div>
+                            ${session.finalized ? '<span class="saved-badge">Finalized</span>' : '<span class="text-xs text-green-400">● Active</span>'}
+                        </div>
+                        <div class="flex justify-between items-center text-sm text-gray-400">
+                            <span>${new Date(session.created_at).toLocaleDateString()}</span>
+                            ${session.finalized_at ? `<span>Finalized: ${new Date(session.finalized_at).toLocaleDateString()}</span>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            },
+
+            switchTab(tab) {
+                this.data.currentTab = tab;
+                ['active', 'finalized', 'saved'].forEach(t => {
+                    const el = document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}`);
+                    if (t === tab) {
+                        el.classList.remove('tab-inactive');
+                        el.classList.add('tab-active');
+                    } else {
+                        el.classList.remove('tab-active');
+                        el.classList.add('tab-inactive');
+                    }
+                });
+                this.loadMySessions();
+            },
+
+            async saveSessionToProfile() {
+                if (!this.data.currentUser || !this.data.sessionId) return;
+                const { error } = await supabaseClient
+                    .from('saved_sessions')
+                    .insert({ user_id: this.data.currentUser.id, session_id: this.data.sessionId });
+
+                if (error) {
+                    if (error.code === '23505') {
+                        this.showToast('Session already saved', 'info');
+                    } else {
+                        this.showToast('Error saving session', 'error');
+                    }
+                } else {
+                    this.showToast('Session saved to your profile!', 'success');
+                }
+            },
+
+            // ============================================
+            // SESSION MANAGEMENT (Music Ownership)
+            // ============================================
+
+            async createSession() {
+                if (!this.data.isOnline) {
+                    this.showToast('You need to be online to create a session', 'error');
+                    return;
+                }
+
+                const sessionId = this.generateId();
+                
+                const sessionData = {
+                    id: sessionId,
+                    song_title: '',
+                    created_by: this.data.currentUser?.id || null,
+                    is_public: true
+                };
+
+                const { data: session, error } = await supabaseClient
+                    .from('sessions')
+                    .insert(sessionData)
+                    .select()
+                    .single();
+
+                if (error) {
+                    this.showToast('Error creating session: ' + error.message, 'error');
+                    return;
+                }
+
+                this.data.sessionId = sessionId;
+                this.data.songTitle = '';
+                this.data.createdAt = session.created_at;
+                this.data.isFinalized = false;
+                this.data.finalizedAt = null;
+                this.data.sessionHash = null;
+
+                // Create first contributor entry (the creator)
+                const collabData = {
+                    session_id: sessionId,
+                    percentage: APP_CONFIG.DEFAULT_CREATOR_SPLIT,
+                    is_creator: true,
+                    device_id: this.data.currentUser ? null : this.data.deviceId,
+                    user_id: this.data.currentUser?.id || null,
+                    legal_name: this.data.profile?.legal_name || '',
+                    pro_affiliation: this.data.profile?.pro_affiliation || 'ASCAP',
+                    ipi_number: this.data.profile?.ipi_number || ''
+                };
+
+                const { data: collab } = await supabaseClient
+                    .from('contributors')
+                    .insert(collabData)
+                    .select()
+                    .single();
+
+                this.data.currentUserId = collab.id;
+                this.data.contributors = [this.formatContributor(collab)];
+
+                localStorage.setItem(APP_CONFIG.STORAGE_KEYS.ACTIVE_SESSION, sessionId);
+                this.setupRealtime(sessionId);
+                this.showSession();
+                this.showToast('Session created! Add your song and contributors.', 'success');
+            },
+
+            async joinSession() {
+                const id = prompt("Enter Session Code:")?.toUpperCase().trim();
+                if (id) await this.joinSessionById(id);
+            },
+
+            async joinSessionById(sessionId) {
+                if (!this.data.isOnline) {
+                    this.showToast('You need to be online to join a session', 'error');
+                    return;
+                }
+
+                const { data: session, error } = await supabaseClient
+                    .from('sessions')
+                    .select('*')
+                    .eq('id', sessionId)
+                    .single();
+
+                if (error || !session) {
+                    this.showToast('Session not found', 'error');
+                    return;
+                }
+
+                if (session.finalized) {
+                    this.showToast('This agreement has already been finalized.', 'info');
+                }
+
+                this.data.sessionId = sessionId;
+                this.data.songTitle = session.song_title || '';
+                this.data.isFinalized = session.finalized;
+                this.data.finalizedAt = session.finalized_at;
+                this.data.sessionHash = session.hash;
+                this.data.createdAt = session.created_at;
+
+                // Check if user already has a contributor entry
+                let existingQuery = supabaseClient
+                    .from('contributors')
+                    .select('*')
+                    .eq('session_id', sessionId);
+
+                if (this.data.currentUser) {
+                    existingQuery = existingQuery.eq('user_id', this.data.currentUser.id);
+                } else {
+                    existingQuery = existingQuery.eq('device_id', this.data.deviceId);
+                }
+
+                const { data: existingCollab } = await existingQuery.maybeSingle();
+                let myCollab;
+
+                if (existingCollab) {
+                    myCollab = existingCollab;
+                } else if (!session.finalized) {
+                    // Add new contributor
+                    const newCollabData = {
+                        session_id: sessionId,
+                        percentage: 0,
+                        is_creator: false,
+                        device_id: this.data.currentUser ? null : this.data.deviceId,
+                        user_id: this.data.currentUser?.id || null,
+                        legal_name: this.data.profile?.legal_name || '',
+                        pro_affiliation: this.data.profile?.pro_affiliation || 'ASCAP',
+                        ipi_number: this.data.profile?.ipi_number || ''
+                    };
+
+                    const { data: newCollab, error: insertError } = await supabaseClient
+                        .from('contributors')
+                        .insert(newCollabData)
+                        .select()
+                        .single();
+
+                    if (insertError) {
+                        if (insertError.code === '23505') {
+                            const { data: raceCollab } = await supabaseClient
+                                .from('contributors')
+                                .select('*')
+                                .eq('session_id', sessionId)
+                                .eq('user_id', this.data.currentUser?.id)
+                                .maybeSingle();
+                            myCollab = raceCollab;
+                        } else {
+                            this.showToast('Error joining session: ' + insertError.message, 'error');
+                            return;
+                        }
+                    } else {
+                        myCollab = newCollab;
+                    }
+                }
+
+                if (myCollab) {
+                    this.data.currentUserId = myCollab.id;
+                }
+
+                // Load all contributors
+                const { data: contributors } = await supabaseClient
+                    .from('contributors')
+                    .select('*')
+                    .eq('session_id', sessionId);
+
+                this.data.contributors = (contributors || []).map(c => this.formatContributor(c));
+
+                localStorage.setItem(APP_CONFIG.STORAGE_KEYS.ACTIVE_SESSION, sessionId);
+                this.setupRealtime(sessionId);
+                this.showSession();
+                this.renderContributors();
+                this.showToast('Joined session!', 'success');
+            },
+
+            async loadSession(sessionId) {
+                const { data: session } = await supabaseClient
+                    .from('sessions')
+                    .select('*')
+                    .eq('id', sessionId)
+                    .single();
+
+                if (!session) {
+                    localStorage.removeItem(APP_CONFIG.STORAGE_KEYS.ACTIVE_SESSION);
+                    return;
+                }
+
+                this.data.sessionId = sessionId;
+                this.data.songTitle = session.song_title || '';
+                this.data.isFinalized = session.finalized;
+                this.data.finalizedAt = session.finalized_at;
+                this.data.sessionHash = session.hash;
+                this.data.createdAt = session.created_at;
+
+                let myQuery = supabaseClient
+                    .from('contributors')
+                    .select('*')
+                    .eq('session_id', sessionId);
+
+                if (this.data.currentUser) {
+                    myQuery = myQuery.eq('user_id', this.data.currentUser.id);
+                } else {
+                    myQuery = myQuery.eq('device_id', this.data.deviceId);
+                }
+
+                const { data: myCollab } = await myQuery.maybeSingle();
+                if (myCollab) {
+                    this.data.currentUserId = myCollab.id;
+                }
+
+                const { data: contributors } = await supabaseClient
+                    .from('contributors')
+                    .select('*')
+                    .eq('session_id', sessionId);
+
+                this.data.contributors = (contributors || []).map(c => this.formatContributor(c));
+
+                this.setupRealtime(sessionId);
+                this.showSession();
+                this.renderContributors();
+            },
+
+            formatContributor(c) {
+                // Convert basis points to percentage for display (10000 bps = 100%)
+                const ownershipBps = c.ownership_bps || 0;
+                return {
+                    id: c.id,
+                    legalName: c.legal_name || '',
+                    email: c.email || '',
+                    proAffiliation: c.pro_affiliation || 'ASCAP',
+                    ipiNumber: c.ipi_number || '',
+                    role: c.role || 'Writer',
+                    rightsType: c.rights_type || 'Both',
+                    ownershipBps: ownershipBps,              // Stored as basis points
+                    percentage: Math.round(ownershipBps / 100), // For display (0-100)
+                    signatureData: c.signature_data,
+                    signedAt: c.signed_at,
+                    signatureConsent: c.signature_consent || false,
+                    isCurrentUser: c.id === this.data.currentUserId,
+                    isCreator: c.is_creator,
+                    userId: c.user_id,
+                    createdAt: c.created_at,
+                    updatedAt: c.updated_at
+                };
+            },
+
+            setupRealtime(sessionId) {
+                if (this.data.realtimeChannel) {
+                    supabaseClient.removeChannel(this.data.realtimeChannel);
+                }
+
+                this.data.realtimeChannel = supabaseClient
+                    .channel(`session_${sessionId}`)
+                    .on('postgres_changes', {
+                        event: '*',
+                        schema: 'public',
+                        table: 'contributors',
+                        filter: `session_id=eq.${sessionId}`
+                    }, async () => {
+                        const { data: contributors } = await supabaseClient
+                            .from('contributors')
+                            .select('*')
+                            .eq('session_id', sessionId);
+
+                        this.data.contributors = (contributors || []).map(c => this.formatContributor(c));
+                        this.renderContributors();
+                    })
+                    .on('postgres_changes', {
+                        event: 'UPDATE',
+                        schema: 'public',
+                        table: 'sessions',
+                        filter: `id=eq.${sessionId}`
+                    }, async (payload) => {
+                        if (payload.new) {
+                            const wasFinalized = this.data.isFinalized;
+                            this.data.songTitle = payload.new.song_title || '';
+                            this.data.isFinalized = payload.new.finalized;
+                            this.data.finalizedAt = payload.new.finalized_at;
+                            this.data.sessionHash = payload.new.hash;
+
+                            if (payload.new.song_title) {
+                                document.getElementById('songTitle').value = payload.new.song_title;
+                            }
+
+                            if (!wasFinalized && payload.new.finalized) {
+                                this.showFinalizedState();
+                                this.showToast('Agreement finalized!', 'success');
+                            }
+
+                            this.renderContributors();
+                        }
+                    })
+                    .subscribe((status) => {
+                        this.updateConnectionStatus(status === 'SUBSCRIBED');
+                    });
+            },
+
+            // ============================================
+            // UI HELPERS
+            // ============================================
+
+            hideAllScreens() {
+                ['landingScreen', 'authScreen', 'profileScreen', 'mySessionsScreen', 'sessionScreen', 'signatureScreen', 'shareScreen']
+                    .forEach(id => document.getElementById(id).classList.add('hidden-screen'));
+            },
+
+            showLanding() {
+                this.hideAllScreens();
+                document.getElementById('landingScreen').classList.remove('hidden-screen');
+            },
+
+            showSession() {
+                this.hideAllScreens();
+                document.getElementById('sessionScreen').classList.remove('hidden-screen');
+                document.getElementById('sessionIdDisplay').textContent = 'Session: ' + this.data.sessionId;
+                if (this.data.songTitle) {
+                    document.getElementById('songTitle').value = this.data.songTitle;
+                }
+            },
+
+            showToast(message, type = 'info') {
+                const existing = document.querySelector('.toast');
+                if (existing) existing.remove();
+
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                document.body.appendChild(toast);
+
+                setTimeout(() => toast.remove(), 3000);
+            },
+
+            updateConnectionStatus(isLive) {
+                const indicator = document.getElementById('syncStatus');
+                const text = document.getElementById('connectionStatus');
+                if (isLive) {
+                    indicator.classList.remove('offline');
+                    text.textContent = 'Live';
+                } else {
+                    indicator.classList.add('offline');
+                    text.textContent = 'Offline';
+                }
+            },
+
+            handleOnline() {
+                this.data.isOnline = true;
+                this.updateConnectionStatus(true);
+                this.showToast('Back online', 'success');
+            },
+
+            handleOffline() {
+                this.data.isOnline = false;
+                this.updateConnectionStatus(false);
+                this.showToast('You are offline', 'error');
+            },
+
+            generateId() {
+                return Math.random().toString(36).substring(2, 10).toUpperCase();
+            },
+
+            // ============================================
+            // CONTRIBUTOR MANAGEMENT
+            // ============================================
+
+            async updateContributor(id, field, value) {
+                if (this.data.isFinalized) {
+                    this.showToast('Agreement is finalized - cannot modify', 'error');
+                    return;
+                }
+
+                const updateData = {};
+                
+                // Convert percentage to basis points for database storage
+                if (field === 'percentage') {
+                    updateData['ownership_bps'] = Math.round(value * 100);
+                } else {
+                    const fieldMap = {
+                        'legalName': 'legal_name',
+                        'email': 'email',
+                        'proAffiliation': 'pro_affiliation',
+                        'ipiNumber': 'ipi_number',
+                        'role': 'role',
+                        'rightsType': 'rights_type'
+                    };
+                    updateData[fieldMap[field] || field] = value;
+                }
+
+                const { error } = await supabaseClient
+                    .from('contributors')
+                    .update(updateData)
+                    .eq('id', id);
+
+                if (error) {
+                    this.showToast('Error updating: ' + error.message, 'error');
+                    return;
+                }
+
+                const c = this.data.contributors.find(x => x.id === id);
+                if (c) {
+                    if (field === 'percentage') {
+                        c.ownershipBps = Math.round(value * 100);
+                        c.percentage = value;
+                    } else {
+                        c[field] = value;
+                    }
+                    if (field === 'percentage') this.updateTotal();
+                }
+            },
+
+            async removeContributor(id) {
+                if (this.data.isFinalized) return;
+                if (this.data.contributors.length <= 1) {
+                    this.showToast('Cannot remove the last contributor', 'error');
+                    return;
+                }
+
+                const { error } = await supabaseClient
+                    .from('contributors')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) {
+                    this.showToast('Error removing contributor', 'error');
+                    return;
+                }
+
+                if (this.data.currentUserId === id) {
+                    this.data.currentUserId = null;
+                    this.showToast('You left the session', 'info');
+                    this.showLanding();
+                }
+            },
+
+            async leaveSession() {
+                localStorage.removeItem(APP_CONFIG.STORAGE_KEYS.ACTIVE_SESSION);
+                
+                if (this.data.currentUserId) {
+                    await this.removeContributor(this.data.currentUserId);
+                }
+                
+                this.data.sessionId = null;
+                this.data.currentUserId = null;
+                this.data.contributors = [];
+                
+                if (this.data.realtimeChannel) {
+                    supabaseClient.removeChannel(this.data.realtimeChannel);
+                    this.data.realtimeChannel = null;
+                }
+                
+                this.showLanding();
+                this.showToast('Left session', 'info');
+            },
+            
+            goHome() {
+                localStorage.removeItem(APP_CONFIG.STORAGE_KEYS.ACTIVE_SESSION);
+                
+                if (this.data.realtimeChannel) {
+                    supabaseClient.removeChannel(this.data.realtimeChannel);
+                    this.data.realtimeChannel = null;
+                }
+                
+                this.showLanding();
+            },
+
+            updateTotal() {
+                // Calculate using basis points (10000 = 100%)
+                const totalBps = this.data.contributors.reduce((sum, c) => sum + (c.ownershipBps || 0), 0);
+                const totalPercent = Math.round(totalBps / 100);
+                
+                const ring = document.getElementById('progressRing');
+                const display = document.getElementById('totalPercent');
+                const btn = document.getElementById('finalizeBtn');
+                const msg = document.getElementById('validationMsg');
+
+                ring.style.setProperty('--percent', totalPercent);
+                display.textContent = totalPercent + '%';
+
+                if (this.data.isFinalized) {
+                    btn.disabled = true;
+                    btn.textContent = 'Agreement Finalized';
+                    btn.className = 'w-full py-4 rounded-2xl bg-green-500/20 text-green-400 font-semibold border border-green-500/30';
+                    msg.classList.add('hidden');
+                    return;
+                }
+
+                // Validate exact 100% (10000 bps)
+                if (totalBps === 10000) {
+                    ring.style.background = `conic-gradient(#30D158 100%, #30D158 100%)`;
+                    btn.disabled = false;
+                    btn.className = 'w-full py-4 rounded-2xl btn-primary text-lg font-semibold';
+                    btn.textContent = 'Finalize Agreement →';
+                    msg.classList.add('hidden');
+                } else {
+                    btn.disabled = true;
+                    btn.className = 'w-full py-4 rounded-2xl bg-gray-800 text-gray-500 font-semibold';
+                    const diff = Math.abs(totalPercent - 100);
+                    btn.textContent = totalBps > 10000 ? `Over by ${diff}%` : `Need ${diff}% more`;
+                    msg.classList.remove('hidden');
+                }
+            },
+
+            renderContributors() {
+                const list = document.getElementById('collaboratorsList');
+                const isLocked = this.data.isFinalized;
+
+                if (this.data.contributors.length === 0) {
+                    list.innerHTML = '<p class="text-center text-gray-400 py-4">No contributors yet</p>';
+                    return;
+                }
+
+                list.innerHTML = this.data.contributors.map(c => `
+                    <div class="glass rounded-2xl p-4 space-y-3 ${c.signatureData ? 'border-green-500/30' : ''} ${isLocked ? 'opacity-75' : ''}">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1 space-y-2">
+                                <input type="text" placeholder="Legal Full Name" value="${c.legalName}" 
+                                    onchange="app.updateContributor('${c.id}', 'legalName', this.value)"
+                                    class="ios-input w-full px-3 py-2 rounded-lg text-sm font-medium"
+                                    ${isLocked ? 'disabled' : ''}>
+                                <div class="flex gap-2">
+                                    <select onchange="app.updateContributor('${c.id}', 'role', this.value)" 
+                                        class="ios-input px-2 py-2 rounded-lg text-xs flex-1"
+                                        ${isLocked ? 'disabled' : ''}>
+                                        <option value="Artist" ${c.role === 'Artist' ? 'selected' : ''}>Artist</option>
+                                        <option value="Producer" ${c.role === 'Producer' ? 'selected' : ''}>Producer</option>
+                                        <option value="Writer" ${c.role === 'Writer' ? 'selected' : ''}>Writer</option>
+                                        <option value="Engineer" ${c.role === 'Engineer' ? 'selected' : ''}>Engineer</option>
+                                        <option value="Featured" ${c.role === 'Featured' ? 'selected' : ''}>Featured</option>
+                                        <option value="Other" ${c.role === 'Other' ? 'selected' : ''}>Other</option>
+                                    </select>
+                                    <select onchange="app.updateContributor('${c.id}', 'rightsType', this.value)" 
+                                        class="ios-input px-2 py-2 rounded-lg text-xs flex-1"
+                                        ${isLocked ? 'disabled' : ''}>
+                                        <option value="Master" ${c.rightsType === 'Master' ? 'selected' : ''}>Master</option>
+                                        <option value="Publishing" ${c.rightsType === 'Publishing' ? 'selected' : ''}>Publishing</option>
+                                        <option value="Both" ${c.rightsType === 'Both' ? 'selected' : ''}>Both</option>
+                                    </select>
+                                </div>
+                                <div class="flex gap-2">
+                                    <select onchange="app.updateContributor('${c.id}', 'proAffiliation', this.value)" 
+                                        class="ios-input px-2 py-2 rounded-lg text-xs w-24"
+                                        ${isLocked ? 'disabled' : ''}>
+                                        <option value="ASCAP" ${c.proAffiliation === 'ASCAP' ? 'selected' : ''}>ASCAP</option>
+                                        <option value="BMI" ${c.proAffiliation === 'BMI' ? 'selected' : ''}>BMI</option>
+                                        <option value="SESAC" ${c.proAffiliation === 'SESAC' ? 'selected' : ''}>SESAC</option>
+                                        <option value="GMR" ${c.proAffiliation === 'GMR' ? 'selected' : ''}>GMR</option>
+                                        <option value="Other" ${c.proAffiliation === 'Other' ? 'selected' : ''}>Other</option>
+                                    </select>
+                                    <input type="text" placeholder="IPI #" value="${c.ipiNumber}" 
+                                        onchange="app.updateContributor('${c.id}', 'ipiNumber', this.value)"
+                                        class="ios-input flex-1 px-3 py-2 rounded-lg text-xs"
+                                        ${isLocked ? 'disabled' : ''}>
+                                </div>
+                            </div>
+                            ${!isLocked && this.data.contributors.length > 1 && c.isCurrentUser ? `
+                                <button onclick="app.removeContributor('${c.id}')" class="ml-2 text-gray-500 p-1">✕</button>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="flex gap-2 items-center pt-2 border-t border-white/10">
+                            <span class="text-xs text-gray-400">Ownership:</span>
+                            <div class="flex-1 flex items-center gap-2 justify-end">
+                                <input type="range" min="0" max="100" value="${c.percentage}" 
+                                    oninput="app.updateContributor('${c.id}', 'percentage', parseInt(this.value))"
+                                    class="w-20 accent-green-500"
+                                    ${isLocked ? 'disabled' : ''}>
+                                <div class="relative w-14">
+                                    <input type="number" value="${c.percentage}" 
+                                        onchange="app.updateContributor('${c.id}', 'percentage', parseInt(this.value))"
+                                        class="ios-input w-full px-2 py-1 rounded text-center font-bold text-sm"
+                                        ${isLocked ? 'disabled' : ''}>
+                                    <span class="absolute right-0 top-1/2 -translate-y-1/2 text-xs text-gray-500">%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        ${c.signatureData ? `
+                            <div class="flex items-center gap-2 text-green-400 text-xs font-medium pt-2">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                Signed ${c.signedAt ? new Date(c.signedAt).toLocaleTimeString() : ''}
+                            </div>
+                        ` : c.isCurrentUser && !isLocked ? `
+                            <button onclick="app.openSignature('${c.id}')" class="w-full py-2 rounded-lg bg-white/10 text-sm font-medium hover:bg-white/20 transition">
+                                Sign Agreement
+                            </button>
+                        ` : !c.signatureData ? `
+                            <div class="text-xs text-yellow-500/80 pt-2">Waiting for signature...</div>
+                        ` : ''}
+                    </div>
+                `).join('');
+
+                this.updateTotal();
+
+                if (this.data.isFinalized) {
+                    this.showFinalizedState();
+                }
+            },
+
+            showFinalizedState() {
+                const banner = document.getElementById('finalizedBanner');
+                const time = document.getElementById('finalizedTime');
+                if (banner && this.data.finalizedAt) {
+                    banner.classList.remove('hidden');
+                    time.textContent = `Finalized at ${new Date(this.data.finalizedAt).toLocaleString()}`;
+                }
+            },
+
+            // ============================================
+            // SIGNATURE
+            // ============================================
+
+            openSignature(contributorId) {
+                this.data.signingId = contributorId;
+                document.getElementById('signatureScreen').classList.remove('hidden-screen');
+                setTimeout(() => this.initCanvas(), 100);
+            },
+
+            initCanvas() {
+                const canvas = document.getElementById('signaturePad');
+                const ctx = canvas.getContext('2d');
+                canvas.width = canvas.offsetWidth * 2;
+                canvas.height = canvas.offsetHeight * 2;
+                ctx.scale(2, 2);
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.lineCap = 'round';
+
+                let drawing = false;
+                let lastX = 0;
+                let lastY = 0;
+
+                const getPos = (e) => {
+                    const rect = canvas.getBoundingClientRect();
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                    return { x: clientX - rect.left, y: clientY - rect.top };
+                };
+
+                const start = (e) => {
+                    drawing = true;
+                    const pos = getPos(e);
+                    lastX = pos.x;
+                    lastY = pos.y;
+                };
+
+                const draw = (e) => {
+                    if (!drawing) return;
+                    e.preventDefault();
+                    const pos = getPos(e);
+                    ctx.beginPath();
+                    ctx.moveTo(lastX, lastY);
+                    ctx.lineTo(pos.x, pos.y);
+                    ctx.stroke();
+                    lastX = pos.x;
+                    lastY = pos.y;
+                };
+
+                const stop = () => drawing = false;
+
+                canvas.addEventListener('mousedown', start);
+                canvas.addEventListener('mousemove', draw);
+                canvas.addEventListener('mouseup', stop);
+                canvas.addEventListener('mouseout', stop);
+                canvas.addEventListener('touchstart', start);
+                canvas.addEventListener('touchmove', draw);
+                canvas.addEventListener('touchend', stop);
+            },
+
+            clearSignature() {
+                const canvas = document.getElementById('signaturePad');
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            },
+
+            async saveSignature() {
+                if (this.data.isFinalized) {
+                    this.showToast('Agreement is already finalized', 'error');
+                    return;
+                }
+
+                // Validate consent checkbox
+                const consentChecked = document.getElementById('signatureConsent').checked;
+                if (!consentChecked) {
+                    this.showToast('You must consent to electronic signature', 'error');
+                    return;
+                }
+
+                const canvas = document.getElementById('signaturePad');
+                const signatureData = canvas.toDataURL();
+                
+                // Verify signature is not empty
+                const blankCanvas = document.createElement('canvas');
+                blankCanvas.width = canvas.width;
+                blankCanvas.height = canvas.height;
+                if (signatureData === blankCanvas.toDataURL()) {
+                    this.showToast('Please provide a signature', 'error');
+                    return;
+                }
+
+                // Get current user info for audit
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                
+                const { error } = await supabaseClient
+                    .from('contributors')
+                    .update({
+                        signature_data: signatureData,
+                        signed_at: new Date().toISOString(),
+                        signature_consent: true
+                    })
+                    .eq('id', this.data.signingId);
+
+                if (error) {
+                    this.showToast('Error saving signature: ' + error.message, 'error');
+                    return;
+                }
+
+                // Reset consent checkbox
+                document.getElementById('signatureConsent').checked = false;
+                document.getElementById('signatureScreen').classList.add('hidden-screen');
+
+                const { data: contributors } = await supabaseClient
+                    .from('contributors')
+                    .select('*')
+                    .eq('session_id', this.data.sessionId);
+
+                this.data.contributors = (contributors || []).map(c => this.formatContributor(c));
+                this.renderContributors();
+                this.showToast('Signature saved!', 'success');
+
+                // Check using basis points (10000 = 100%)
+                const totalBps = this.data.contributors.reduce((sum, c) => sum + (c.ownershipBps || 0), 0);
+                const allSigned = this.data.contributors.every(c => c.signatureData && c.signedAt && c.signatureConsent);
+
+                if (allSigned && totalBps === 10000) {
+                    this.showToast('All parties signed! Finalizing...', 'success');
+                    await this.finalizeAgreement();
+                }
+            },
+
+            // ============================================
+            // FINALIZATION & AGREEMENT PDF
+            // ============================================
+
+            async updateSongTitle(val) {
+                if (this.data.isFinalized) return;
+                this.data.songTitle = val;
+                await supabaseClient
+                    .from('sessions')
+                    .update({ song_title: val })
+                    .eq('id', this.data.sessionId);
+            },
+
+            async finalizeAgreement() {
+                if (this.data.isFinalized) return;
+
+                // Validate using basis points (10000 = 100%)
+                const totalBps = this.data.contributors.reduce((sum, c) => sum + (c.ownershipBps || 0), 0);
+                if (totalBps !== 10000) {
+                    this.showToast(`Total ownership must equal 100% (current: ${(totalBps / 100).toFixed(2)}%)`, 'error');
+                    return;
+                }
+
+                const allSigned = this.data.contributors.every(c => c.signatureData && c.signedAt && c.signatureConsent);
+                if (!allSigned) {
+                    this.showToast("All contributors must sign and consent before finalizing.", 'error');
+                    return;
+                }
+
+                // Check if user is creator or contributor
+                const isCreator = this.data.contributors.some(c => c.isCurrentUser && c.isCreator);
+                if (!isCreator) {
+                    this.showToast("Only the session creator can finalize the agreement.", 'error');
+                    return;
+                }
+
+                const hash = await this.generateHash();
+                const finalizedAt = new Date().toISOString();
+
+                // Get current user for audit
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                
+                const { error } = await supabaseClient
+                    .from('sessions')
+                    .update({
+                        finalized: true,
+                        finalized_at: finalizedAt,
+                        finalized_by: user?.id || null,
+                        hash: hash
+                    })
+                    .eq('id', this.data.sessionId);
+
+                if (error) {
+                    this.showToast('Error finalizing: ' + error.message, 'error');
+                    return;
+                }
+
+                this.data.isFinalized = true;
+                this.data.finalizedAt = finalizedAt;
+                this.data.sessionHash = hash;
+
+                this.generateAgreementPDF(hash, finalizedAt);
+                this.showFinalizedState();
+                this.renderContributors();
+                this.showToast('Ownership agreement finalized!', 'success');
+            },
+
+            async generateHash() {
+                // Create deterministic hash of agreement state
+                const data = {
+                    v: 1, // hash version for future compatibility
+                    songTitle: this.data.songTitle,
+                    sessionId: this.data.sessionId,
+                    version: this.data.version || 1,
+                    finalizedAt: new Date().toISOString(),
+                    contributors: this.data.contributors.map(c => ({
+                        name: c.legalName,
+                        role: c.role,
+                        rightsType: c.rightsType,
+                        ownershipBps: c.ownershipBps,
+                        pro: c.proAffiliation,
+                        signedAt: c.signedAt,
+                        hasSignature: !!c.signatureData,
+                        hasConsent: c.signatureConsent
+                    })).sort((a, b) => a.name.localeCompare(b.name)) // deterministic ordering
+                };
+
+                const msgBuffer = new TextEncoder().encode(JSON.stringify(data));
+                const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            },
+
+            generateAgreementPDF(hash, finalizedAt) {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                const pageWidth = doc.internal.pageSize.getWidth();
+
+                // Header
+                doc.setFontSize(20);
+                doc.setTextColor(0, 0, 0);
+                doc.text("MUSIC OWNERSHIP AGREEMENT", pageWidth/2, 20, { align: 'center' });
+
+                doc.setFontSize(10);
+                doc.setTextColor(100, 100, 100);
+                doc.text("SongSplit | Music Ownership Agreements", pageWidth/2, 28, { align: 'center' });
+
+                // Song Info
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0);
+                doc.text(`Song Title: ${this.data.songTitle || '[Untitled]'}`, 20, 45);
+                doc.text(`Session ID: ${this.data.sessionId}`, 20, 52);
+                doc.text(`Date Created: ${new Date(this.data.createdAt).toLocaleDateString()}`, 20, 59);
+                doc.text(`Finalized: ${new Date(finalizedAt).toLocaleString()}`, 20, 66);
+
+                // Contributors Table Header
+                let y = 80;
+                doc.setFillColor(240, 240, 240);
+                doc.rect(20, y-5, pageWidth-40, 10, 'F');
+                doc.setFontSize(9);
+                doc.setFont(undefined, 'bold');
+                doc.text("Contributor", 22, y);
+                doc.text("Role", 75, y);
+                doc.text("Rights", 100, y);
+                doc.text("PRO", 125, y);
+                doc.text("Split", 150, y);
+
+                // Contributors Data
+                doc.setFont(undefined, 'normal');
+                y += 10;
+                this.data.contributors.forEach(c => {
+                    doc.text(c.legalName || '[Name]', 22, y);
+                    doc.text(c.role, 75, y);
+                    doc.text(c.rightsType, 100, y);
+                    doc.text(c.proAffiliation, 125, y);
+                    doc.text(c.percentage + '%', 150, y);
+                    y += 7;
+                });
+
+                // Agreement Text
+                y += 10;
+                doc.setFontSize(9);
+                doc.setTextColor(60, 60, 60);
+                const agreementText = `The undersigned contributors agree that the above splits represent the fair division of ownership rights for the song "${this.data.songTitle || '[Untitled]'}". This includes both Master Recording rights and Publishing rights as indicated. These percentages shall be used for all royalty distributions, PRO registrations, and any licensing agreements. This agreement is binding and enforceable.`;
+                doc.text(agreementText, 20, y, { maxWidth: pageWidth-40, align: 'justify' });
+
+                // Signature Section
+                y += 35;
+                this.data.contributors.forEach((c, idx) => {
+                    if (y > 250) {
+                        doc.addPage();
+                        y = 30;
+                    }
+
+                    doc.setFontSize(10);
+                    doc.setTextColor(0, 0, 0);
+                    doc.text(`${c.legalName || `Contributor ${idx+1}`} (${c.role})`, 20, y);
+
+                    if (c.signatureData) {
+                        doc.addImage(c.signatureData, 'PNG', 20, y+2, 50, 20);
+                    }
+
+                    doc.line(20, y+22, 80, y+22);
+                    doc.setFontSize(8);
+                    doc.setTextColor(100, 100, 100);
+                    doc.text("Signature", 20, y+26);
+                    doc.text(`Date: ${new Date(c.signedAt).toLocaleDateString()}`, 100, y+22);
+                    doc.text(`IPI: ${c.ipiNumber || 'N/A'}`, 100, y+26);
+
+                    y += 35;
+                });
+
+                // Footer
+                doc.setFontSize(8);
+                doc.setTextColor(150, 150, 150);
+                doc.text(`Document Hash: ${hash}`, pageWidth/2, 280, { align: 'center' });
+                doc.text("This document serves as a binding music ownership agreement.", pageWidth/2, 285, { align: 'center' });
+                doc.text("Verify at: splitsheet.app/verify", pageWidth/2, 290, { align: 'center' });
+
+                doc.save(`OwnershipAgreement_${this.data.songTitle || 'Song'}_${this.data.sessionId}.pdf`);
+            },
+
+            downloadPDF() {
+                if (this.data.sessionHash && this.data.finalizedAt) {
+                    this.generateAgreementPDF(this.data.sessionHash, this.data.finalizedAt);
+                }
+            },
+
+            // ============================================
+            // SHARING
+            // ============================================
+
+            shareSession() {
+                const url = `${window.location.origin}${window.location.pathname}?session=${this.data.sessionId}`;
+                document.getElementById('shareScreen').classList.remove('hidden-screen');
+                document.getElementById('shareLink').textContent = url;
+
+                const qrDiv = document.getElementById('qrcode');
+                qrDiv.innerHTML = '';
+                new QRCode(qrDiv, {
+                    text: url,
+                    width: 180,
+                    height: 180,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+            },
+
+            async copyShareLink() {
+                const url = document.getElementById('shareLink').textContent;
+                try {
+                    await navigator.clipboard.writeText(url);
+                    this.showToast('Link copied!', 'success');
+                } catch (err) {
+                    this.showToast('Failed to copy link', 'error');
+                }
+            },
+
+            closeShare() {
+                document.getElementById('shareScreen').classList.add('hidden-screen');
+            },
+
+            inviteWriter() {
+                this.shareSession();
+            }
+        };
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((reg) => console.log('SW registered'))
+                    .catch((err) => console.log('SW failed', err));
+            });
+        }
+
+        // Initialize app
+        window.addEventListener('DOMContentLoaded', () => app.init());
+    </script>
+</body>
+</html>

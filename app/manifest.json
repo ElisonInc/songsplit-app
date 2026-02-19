@@ -2,57 +2,57 @@
   "name": "SongSplit - Music Ownership Agreements",
   "short_name": "SongSplit",
   "description": "Real-time collaborative split sheet agreements for music creators",
-  "start_url": "/",
+  "start_url": "/app",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
   "orientation": "portrait",
-  "scope": "/",
+  "scope": "/app",
   "icons": [
     {
-      "src": "/icons/icon-72x72.png",
+      "src": "/app/icons/icon-72x72.png",
       "sizes": "72x72",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/icons/icon-96x96.png",
+      "src": "/app/icons/icon-96x96.png",
       "sizes": "96x96",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/icons/icon-128x128.png",
+      "src": "/app/icons/icon-128x128.png",
       "sizes": "128x128",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/icons/icon-144x144.png",
+      "src": "/app/icons/icon-144x144.png",
       "sizes": "144x144",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/icons/icon-152x152.png",
+      "src": "/app/icons/icon-152x152.png",
       "sizes": "152x152",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/icons/icon-192x192.png",
+      "src": "/app/icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/icons/icon-384x384.png",
+      "src": "/app/icons/icon-384x384.png",
       "sizes": "384x384",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/icons/icon-512x512.png",
+      "src": "/app/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable any"
@@ -61,13 +61,13 @@
   "categories": ["productivity", "business", "music"],
   "screenshots": [
     {
-      "src": "/screenshots/mobile-home.png",
+      "src": "/app/screenshots/mobile-home.png",
       "sizes": "750x1334",
       "type": "image/png",
       "form_factor": "narrow"
     },
     {
-      "src": "/screenshots/mobile-session.png",
+      "src": "/app/screenshots/mobile-session.png",
       "sizes": "750x1334",
       "type": "image/png",
       "form_factor": "narrow"
@@ -78,8 +78,8 @@
       "name": "New Split Sheet",
       "short_name": "New Sheet",
       "description": "Create a new split sheet agreement",
-      "url": "/?action=new",
-      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+      "url": "/app?action=new",
+      "icons": [{ "src": "/app/icons/icon-192x192.png", "sizes": "192x192" }]
     }
   ]
 }
