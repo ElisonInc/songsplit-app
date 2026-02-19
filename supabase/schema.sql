@@ -1,4 +1,4 @@
--- SplitSheet Database Schema with Authentication
+-- SplitSheet Database Schema - Music Ownership Agreement Engine
 -- Run this in your Supabase SQL Editor
 
 -- Enable required extensions
@@ -20,7 +20,7 @@ create table if not exists public.profiles (
 );
 
 -- ============================================
--- SESSIONS TABLE
+-- SESSIONS TABLE (Recording Session)
 -- ============================================
 create table if not exists public.sessions (
   id text primary key,
@@ -34,20 +34,35 @@ create table if not exists public.sessions (
 );
 
 -- ============================================
--- COLLABORATORS TABLE
+-- CONTRIBUTORS TABLE (Artists, Producers, Writers, etc.)
 -- ============================================
-create table if not exists public.collaborators (
+create table if not exists public.contributors (
   id uuid default gen_random_uuid() primary key,
   session_id text references public.sessions(id) on delete cascade not null,
   user_id uuid references auth.users(id) on delete set null,
+  
+  -- Identity
   legal_name text not null default '',
   email text,
+  
+  -- Role in the creation process
+  role text default 'Writer', -- Artist, Producer, Writer, Engineer, Featured, Other
+  
+  -- Rights ownership type
+  rights_type text default 'Both', -- Master, Publishing, Both
+  
+  -- Ownership percentage (0-100)
+  percentage integer default 0 check (percentage >= 0 and percentage <= 100),
+  
+  -- PRO Information
   pro_affiliation text default 'ASCAP',
   ipi_number text,
-  contribution text default 'Both',
-  percentage integer default 0 check (percentage >= 0 and percentage <= 100),
+  
+  -- Digital signature
   signature_data text,
   signed_at timestamp with time zone,
+  
+  -- Metadata
   is_creator boolean default false not null,
   device_id text,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
@@ -55,9 +70,8 @@ create table if not exists public.collaborators (
 );
 
 -- Unique constraint - only one entry per user/device per session
--- Note: This allows both null user_ids (anonymous) and multiple device_ids
-CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_collaborator 
-ON public.collaborators (session_id, COALESCE(user_id, device_id));
+CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_contributor 
+ON public.contributors (session_id, COALESCE(user_id, device_id));
 
 -- ============================================
 -- SAVED SESSIONS
@@ -74,9 +88,9 @@ create table if not exists public.saved_sessions (
 -- ============================================
 -- INDEXES
 -- ============================================
-create index if not exists idx_collaborators_session on public.collaborators(session_id);
-create index if not exists idx_collaborators_user on public.collaborators(user_id);
-create index if not exists idx_collaborators_device on public.collaborators(device_id);
+create index if not exists idx_contributors_session on public.contributors(session_id);
+create index if not exists idx_contributors_user on public.contributors(user_id);
+create index if not exists idx_contributors_device on public.contributors(device_id);
 create index if not exists idx_sessions_created_by on public.sessions(created_by);
 create index if not exists idx_sessions_finalized on public.sessions(finalized);
 create index if not exists idx_saved_sessions_user on public.saved_sessions(user_id);
@@ -87,7 +101,7 @@ create index if not exists idx_profiles_email on public.profiles(email);
 -- ============================================
 DO $$
 DECLARE
-  tables_to_add text[] := ARRAY['sessions', 'collaborators', 'profiles'];
+  tables_to_add text[] := ARRAY['sessions', 'contributors', 'profiles'];
   t text;
 BEGIN
   FOREACH t IN ARRAY tables_to_add LOOP
@@ -136,24 +150,24 @@ drop policy if exists "Creators can update their sessions" on public.sessions;
 create policy "Creators can update their sessions"
   on public.sessions for update using (auth.uid() = created_by or created_by is null);
 
--- Collaborators
-alter table public.collaborators enable row level security;
+-- Contributors
+alter table public.contributors enable row level security;
 
-drop policy if exists "Collaborators are viewable by everyone" on public.collaborators;
-create policy "Collaborators are viewable by everyone"
-  on public.collaborators for select using (true);
+drop policy if exists "Contributors are viewable by everyone" on public.contributors;
+create policy "Contributors are viewable by everyone"
+  on public.contributors for select using (true);
 
-drop policy if exists "Users can join sessions" on public.collaborators;
+drop policy if exists "Users can join sessions" on public.contributors;
 create policy "Users can join sessions"
-  on public.collaborators for insert with check (true);
+  on public.contributors for insert with check (true);
 
-drop policy if exists "Users can update collaborators" on public.collaborators;
-create policy "Users can update collaborators"
-  on public.collaborators for update using (true);
+drop policy if exists "Users can update contributors" on public.contributors;
+create policy "Users can update contributors"
+  on public.contributors for update using (true);
 
-drop policy if exists "Users can delete collaborators" on public.collaborators;
-create policy "Users can delete collaborators"
-  on public.collaborators for delete using (true);
+drop policy if exists "Users can delete contributors" on public.contributors;
+create policy "Users can delete contributors"
+  on public.contributors for delete using (true);
 
 -- Saved Sessions
 alter table public.saved_sessions enable row level security;
@@ -189,9 +203,9 @@ CREATE TRIGGER on_profile_updated
   BEFORE UPDATE ON public.profiles
   FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
-DROP TRIGGER IF EXISTS on_collaborator_updated ON public.collaborators;
-CREATE TRIGGER on_collaborator_updated
-  BEFORE UPDATE ON public.collaborators
+DROP TRIGGER IF EXISTS on_contributor_updated ON public.contributors;
+CREATE TRIGGER on_contributor_updated
+  BEFORE UPDATE ON public.contributors
   FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
 -- Create profile on user signup
@@ -229,16 +243,16 @@ SELECT
   s.hash,
   s.is_public,
   p.legal_name as creator_name,
-  COUNT(c.id) as collaborator_count,
+  COUNT(c.id) as contributor_count,
   SUM(c.percentage) as total_percentage,
   BOOL_AND(c.signature_data IS NOT NULL) as all_signed
 FROM public.sessions s
 LEFT JOIN public.profiles p ON s.created_by = p.id
-LEFT JOIN public.collaborators c ON s.id = c.session_id
+LEFT JOIN public.contributors c ON s.id = c.session_id
 GROUP BY s.id, s.song_title, s.created_by, s.created_at, s.finalized, s.finalized_at, s.hash, s.is_public, p.legal_name;
 
 -- Comments
 COMMENT ON TABLE public.profiles IS 'User profiles extending auth.users';
-COMMENT ON TABLE public.sessions IS 'Split sheet sessions for music collaboration';
-COMMENT ON TABLE public.collaborators IS 'Writers and their splits for each session';
-COMMENT ON TABLE public.saved_sessions IS 'User saved/archived sessions';
+COMMENT ON TABLE public.sessions IS 'Recording sessions for music ownership agreements';
+COMMENT ON TABLE public.contributors IS 'Artists, producers, writers, and their ownership stakes';
+COMMENT ON TABLE public.saved_sessions IS 'User saved/archived ownership agreements';

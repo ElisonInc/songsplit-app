@@ -6,14 +6,14 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <meta name="description" content="Real-time collaborative split sheet agreements for music creators. Create legally binding split sheets with digital signatures.">
+    <meta name="description" content="Real-time music ownership agreements. Define who owns what at the moment of creation.">
     
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-72x72.png">
     
-    <title>SplitSheet | Session Agreements</title>
+    <title>SplitSheet | Music Ownership Agreements</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -180,15 +180,15 @@
         <div id="landingScreen" class="pt-20 px-6 min-h-screen flex flex-col slide-up">
             <div class="flex-1">
                 <h1 class="text-4xl font-bold leading-tight mb-4">
-                    Own your <span class="gradient-text">music</span> before you bounce.
+                    Lock in <span class="gradient-text">ownership</span> before the session ends.
                 </h1>
                 <p class="text-gray-400 text-base leading-relaxed mb-6">
-                    Create legally binding split sheets in real-time. No more lost royalties, no more "we'll figure it out later."
+                    Create real-time music ownership agreements. Define Master & Publishing rights while the vibe is fresh.
                 </p>
                 
                 <!-- Auth CTA for non-logged in users -->
                 <div id="authCTA" class="hidden mb-6 p-4 rounded-2xl bg-gradient-to-r from-green-500/20 to-blue-500/20 border border-white/10">
-                    <p class="text-sm mb-3">Sign in to save your sessions and access them from any device.</p>
+                    <p class="text-sm mb-3">Sign in to save your agreements and access them from any device.</p>
                     <button onclick="app.showAuth()" class="btn-primary w-full py-3 rounded-xl text-sm">Sign In / Create Account</button>
                 </div>
                 
@@ -196,22 +196,22 @@
                     <div class="flex items-start gap-3 p-4 rounded-2xl bg-white/5">
                         <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-lg">⚡</div>
                         <div>
-                            <h3 class="font-semibold mb-1 text-sm">Real-time Collaboration</h3>
-                            <p class="text-xs text-gray-400">All writers add splits simultaneously while the vibe is fresh.</p>
+                            <h3 class="font-semibold mb-1 text-sm">Real-Time Agreements</h3>
+                            <p class="text-xs text-gray-400">All contributors define ownership while creating. No disputes later.</p>
                         </div>
                     </div>
                     <div class="flex items-start gap-3 p-4 rounded-2xl bg-white/5">
                         <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-lg">✓</div>
                         <div>
                             <h3 class="font-semibold mb-1 text-sm">Legally Binding</h3>
-                            <p class="text-xs text-gray-400">Digital signatures + PDFs recognized by PROs worldwide.</p>
+                            <p class="text-xs text-gray-400">Digital signatures + PDF agreements recognized by PROs & labels.</p>
                         </div>
                     </div>
                     <div class="flex items-start gap-3 p-4 rounded-2xl bg-white/5">
                         <div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 text-lg">☁</div>
                         <div>
-                            <h3 class="font-semibold mb-1 text-sm">Save to Profile</h3>
-                            <p class="text-xs text-gray-400">Access all your sessions from any device.</p>
+                            <h3 class="font-semibold mb-1 text-sm">Master + Publishing</h3>
+                            <p class="text-xs text-gray-400">Define both rights clearly. No confusion, just clarity.</p>
                         </div>
                     </div>
                 </div>
@@ -224,7 +224,7 @@
                 </button>
                 
                 <button onclick="app.createSession()" class="btn-primary w-full py-4 rounded-2xl text-lg">
-                    New Split Sheet
+                    New Session
                 </button>
                 <button onclick="app.joinSession()" class="btn-secondary w-full py-4 rounded-2xl text-lg">
                     Join Session
@@ -284,7 +284,7 @@
                     <div id="profileAvatar" class="avatar w-16 h-16 text-2xl"></div>
                     <div>
                         <h2 class="text-2xl font-bold">My Profile</h2>
-                        <p class="text-sm text-gray-400">Update your information</p>
+                        <p class="text-sm text-gray-400">Your default contributor info</p>
                     </div>
                 </div>
                 
@@ -360,7 +360,7 @@
             </button>
         </div>
 
-        <!-- Session Screen -->
+        <!-- Session Screen - Song Ownership Agreement -->
         <div id="sessionScreen" class="hidden-screen pt-20 px-4">
             <!-- Back to Home Button -->
             <button onclick="app.goHome()" class="mb-4 flex items-center gap-2 text-gray-400 hover:text-white transition text-sm">
@@ -369,7 +369,7 @@
             </button>
             
             <div class="mb-6">
-                <input type="text" id="songTitle" placeholder="Song Title (e.g., Midnight Dreams)" 
+                <input type="text" id="songTitle" placeholder="Song Title" 
                        class="ios-input w-full text-2xl font-bold px-4 py-3 rounded-xl mb-2"
                        onchange="app.updateSongTitle(this.value)">
                 <div class="flex justify-between items-center text-sm text-gray-400 px-1">
@@ -396,9 +396,9 @@
             </div>
 
             <div class="mb-4 flex justify-between items-center px-1">
-                <h2 class="font-semibold text-lg">Collaborators</h2>
+                <h2 class="font-semibold text-lg">Contributors</h2>
                 <button onclick="app.inviteWriter()" class="text-green-400 text-sm font-medium flex items-center gap-1">
-                    + Invite Writer
+                    + Add Contributor
                 </button>
             </div>
 
@@ -407,13 +407,13 @@
             </div>
 
             <div id="validationMsg" class="hidden text-center text-sm text-yellow-500 mb-4 font-medium">
-                Splits must total exactly 100%
+                Ownership must total exactly 100%
             </div>
 
             <div id="finalizedBanner" class="hidden mb-4 p-4 bg-green-500/20 border border-green-500/30 rounded-xl text-center">
-                <div class="text-green-400 font-semibold mb-1">✓ Session Finalized</div>
+                <div class="text-green-400 font-semibold mb-1">✓ Agreement Finalized</div>
                 <div class="text-xs text-gray-400" id="finalizedTime"></div>
-                <button onclick="app.downloadPDF()" class="mt-2 text-xs text-green-400 underline">Download PDF again</button>
+                <button onclick="app.downloadPDF()" class="mt-2 text-xs text-green-400 underline">Download Agreement PDF</button>
             </div>
 
             <div class="fixed bottom-6 left-0 right-0 px-6 max-w-md mx-auto space-y-3">
@@ -437,7 +437,7 @@
         <div id="signatureScreen" class="hidden-screen fixed inset-0 bg-black z-50 flex flex-col">
             <div class="p-6 pt-12 border-b border-white/10">
                 <h2 class="text-2xl font-bold mb-2">Sign Agreement</h2>
-                <p class="text-gray-400">By signing, you agree to the ownership percentages listed above. This is legally binding.</p>
+                <p class="text-gray-400">By signing, you acknowledge the ownership percentages and rights outlined above. This is a binding agreement.</p>
             </div>
             
             <div class="flex-1 p-6 flex flex-col">
@@ -455,7 +455,7 @@
         <div id="shareScreen" class="hidden-screen fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex flex-col items-center justify-center p-6">
             <div class="glass rounded-3xl p-8 w-full max-w-sm text-center">
                 <h3 class="text-xl font-bold mb-2">Scan to Join Session</h3>
-                <p class="text-sm text-gray-400 mb-6">Other writers can scan this to add their splits instantly</p>
+                <p class="text-sm text-gray-400 mb-6">Contributors can scan to add their ownership info</p>
                 <div id="qrcode" class="flex justify-center mb-6 bg-white p-4 rounded-2xl"></div>
                 <div class="text-xs text-gray-500 break-all font-mono mb-6" id="shareLink"></div>
                 <button onclick="app.copyShareLink()" class="btn-secondary w-full py-3 rounded-xl mb-3 text-sm">Copy Link</button>
@@ -467,7 +467,7 @@
 
     <script>
         // ============================================
-        // APP INITIALIZATION
+        // MUSIC OWNERSHIP AGREEMENT ENGINE
         // ============================================
         
         const supabaseClient = supabase.createClient(
@@ -485,23 +485,23 @@
         );
 
         const app = {
-            // State
+            // State - Music Ownership Model
             data: {
-                sessionId: null,
-                songTitle: '',
+                sessionId: null,          // The Session (recording session)
+                songTitle: '',            // The Song being created
                 createdAt: null,
-                collaborators: [],
-                currentUserId: null,
-                isFinalized: false,
+                contributors: [],         // Contributors (artists, producers, writers)
+                currentUserId: null,      // Current user's contributor entry
+                isFinalized: false,       // Agreement finalized
                 finalizedAt: null,
-                sessionHash: null,
+                sessionHash: null,        // Verification hash
                 realtimeChannel: null,
                 deviceId: null,
                 isOnline: navigator.onLine,
                 pendingChanges: [],
                 currentUser: null,
                 profile: null,
-                authMode: 'signin', // 'signin' or 'signup'
+                authMode: 'signin',
                 currentTab: 'active',
                 signingId: null
             },
@@ -513,17 +513,14 @@
             async init() {
                 this.data.deviceId = this.getDeviceId();
                 
-                // Setup network listeners
                 window.addEventListener('online', () => this.handleOnline());
                 window.addEventListener('offline', () => this.handleOffline());
                 
-                // Check auth state
                 const { data: { session } } = await supabaseClient.auth.getSession();
                 if (session) {
                     await this.setUser(session.user);
                 }
                 
-                // Listen for auth changes
                 supabaseClient.auth.onAuthStateChange(async (event, session) => {
                     if (event === 'SIGNED_IN' && session) {
                         await this.setUser(session.user);
@@ -534,23 +531,18 @@
                     }
                 });
                 
-                // Check for session in URL
                 const params = new URLSearchParams(window.location.search);
                 const sessionId = params.get('session');
                 const redirect = params.get('redirect');
                 
                 if (sessionId) {
-                    // User clicked a share link - join that session
                     await this.joinSessionById(sessionId);
                 } else if (redirect) {
-                    // Handle 404 redirect
                     const redirectSessionId = redirect.match(/session=([A-Z0-9]+)/)?.[1];
                     if (redirectSessionId) {
                         await this.joinSessionById(redirectSessionId);
                     }
                 }
-                // Note: We no longer auto-load from localStorage to prevent getting stuck
-                // Users can access their sessions via "My Sessions" or the resume prompt
                 
                 document.getElementById('dateDisplay').textContent = new Date().toLocaleDateString();
                 
@@ -560,16 +552,13 @@
                     }
                 });
                 
-                // Load pending changes
                 const pending = localStorage.getItem(APP_CONFIG.STORAGE_KEYS.PENDING_CHANGES);
                 if (pending) {
                     this.data.pendingChanges = JSON.parse(pending);
                 }
                 
-                // Check for active session to show resume button
                 this.checkForActiveSession();
                 
-                // Close user menu when clicking outside
                 document.addEventListener('click', (e) => {
                     const menu = document.getElementById('userMenu');
                     const btn = document.getElementById('userMenuBtn');
@@ -589,10 +578,8 @@
             },
             
             checkForActiveSession() {
-                // Check if there's an active session in localStorage
                 const activeSession = localStorage.getItem(APP_CONFIG.STORAGE_KEYS.ACTIVE_SESSION);
                 const resumeBtn = document.getElementById('resumeSessionBtn');
-                
                 if (activeSession && resumeBtn) {
                     resumeBtn.classList.remove('hidden');
                 }
@@ -611,14 +598,11 @@
 
             async setUser(user) {
                 this.data.currentUser = user;
-                
-                // Load profile
                 const { data: profile } = await supabaseClient
                     .from('profiles')
                     .select('*')
                     .eq('id', user.id)
                     .single();
-                
                 this.data.profile = profile;
                 this.updateUIForUser();
             },
@@ -641,19 +625,16 @@
                 const menuUserEmail = document.getElementById('menuUserEmail');
 
                 if (user) {
-                    // User is logged in
                     loginBtn.classList.add('hidden');
                     userMenuBtn.classList.remove('hidden');
                     authCTA.classList.add('hidden');
                     mySessionsBtn.classList.remove('hidden');
                     if (saveSessionBtn) saveSessionBtn.classList.remove('hidden');
-                    
                     const initials = this.getInitials(this.data.profile?.legal_name || user.email);
                     userAvatar.textContent = initials;
                     menuUserName.textContent = this.data.profile?.legal_name || 'User';
                     menuUserEmail.textContent = user.email;
                 } else {
-                    // User is logged out
                     loginBtn.classList.remove('hidden');
                     userMenuBtn.classList.add('hidden');
                     authCTA.classList.remove('hidden');
@@ -686,7 +667,7 @@
             updateAuthUI() {
                 const isSignUp = this.data.authMode === 'signup';
                 document.getElementById('authTitle').textContent = isSignUp ? 'Create Account' : 'Sign In';
-                document.getElementById('authSubtitle').textContent = isSignUp ? 'Start creating split sheets' : 'Welcome back to SplitSheet';
+                document.getElementById('authSubtitle').textContent = isSignUp ? 'Start creating ownership agreements' : 'Welcome back to SplitSheet';
                 document.getElementById('authSubmitBtn').textContent = isSignUp ? 'Create Account' : 'Sign In';
                 document.getElementById('authSwitchText').textContent = isSignUp ? 'Already have an account?' : "Don't have an account?";
                 document.getElementById('authSwitchBtn').textContent = isSignUp ? 'Sign In' : 'Sign Up';
@@ -705,17 +686,12 @@
                         const { data, error } = await supabaseClient.auth.signUp({
                             email,
                             password,
-                            options: {
-                                data: { full_name: name }
-                            }
+                            options: { data: { full_name: name } }
                         });
                         if (error) throw error;
-                        this.showToast('Account created! Check your email to confirm.', 'success');
+                        this.showToast('Account created! Check your email.', 'success');
                     } else {
-                        const { data, error } = await supabaseClient.auth.signInWithPassword({
-                            email,
-                            password
-                        });
+                        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
                         if (error) throw error;
                         this.showLanding();
                     }
@@ -739,12 +715,10 @@
                     this.showAuth();
                     return;
                 }
-
                 this.hideAllScreens();
                 document.getElementById('userMenu').classList.add('hidden-screen');
                 document.getElementById('profileScreen').classList.remove('hidden-screen');
 
-                // Load current profile data
                 const profile = this.data.profile;
                 if (profile) {
                     document.getElementById('profileName').value = profile.legal_name || '';
@@ -752,9 +726,7 @@
                     document.getElementById('profileEmail').value = this.data.currentUser.email;
                     document.getElementById('profilePRO').value = profile.pro_affiliation || 'ASCAP';
                     document.getElementById('profileIPI').value = profile.ipi_number || '';
-                    
-                    const initials = this.getInitials(profile.legal_name || this.data.currentUser.email);
-                    document.getElementById('profileAvatar').textContent = initials;
+                    document.getElementById('profileAvatar').textContent = this.getInitials(profile.legal_name || this.data.currentUser.email);
                 }
             },
 
@@ -808,32 +780,27 @@
 
                 const userId = this.data.currentUser.id;
                 const tab = this.data.currentTab;
-
                 let query;
 
                 if (tab === 'saved') {
-                    // Load saved sessions
                     const { data: saved } = await supabaseClient
                         .from('saved_sessions')
                         .select('session_id, sessions(*)')
                         .eq('user_id', userId);
-                    
                     query = saved?.map(s => s.sessions) || [];
                 } else if (tab === 'finalized') {
-                    // Load finalized sessions user participated in
                     const { data: sessions } = await supabaseClient
                         .from('sessions')
-                        .select('*, collaborators!inner(*)')
-                        .eq('collaborators.user_id', userId)
+                        .select('*, contributors!inner(*)')
+                        .eq('contributors.user_id', userId)
                         .eq('finalized', true)
                         .order('finalized_at', { ascending: false });
                     query = sessions || [];
                 } else {
-                    // Load active sessions user participated in
                     const { data: sessions } = await supabaseClient
                         .from('sessions')
-                        .select('*, collaborators!inner(*)')
-                        .eq('collaborators.user_id', userId)
+                        .select('*, contributors!inner(*)')
+                        .eq('contributors.user_id', userId)
                         .eq('finalized', false)
                         .order('created_at', { ascending: false });
                     query = sessions || [];
@@ -844,7 +811,6 @@
 
             renderSessionsList(sessions) {
                 const container = document.getElementById('sessionsList');
-
                 if (!sessions || sessions.length === 0) {
                     container.innerHTML = `
                         <div class="text-center py-12 text-gray-400">
@@ -860,8 +826,8 @@
                     <div onclick="app.joinSessionById('${session.id}')" class="session-card glass rounded-2xl p-4 cursor-pointer">
                         <div class="flex justify-between items-start mb-2">
                             <div>
-                                <h3 class="font-semibold text-lg">${session.song_title || 'Untitled Session'}</h3>
-                                <p class="text-xs text-gray-400">ID: ${session.id}</p>
+                                <h3 class="font-semibold text-lg">${session.song_title || 'Untitled Song'}</h3>
+                                <p class="text-xs text-gray-400">Session: ${session.id}</p>
                             </div>
                             ${session.finalized ? '<span class="saved-badge">Finalized</span>' : '<span class="text-xs text-green-400">● Active</span>'}
                         </div>
@@ -875,8 +841,6 @@
 
             switchTab(tab) {
                 this.data.currentTab = tab;
-                
-                // Update UI
                 ['active', 'finalized', 'saved'].forEach(t => {
                     const el = document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}`);
                     if (t === tab) {
@@ -887,19 +851,14 @@
                         el.classList.add('tab-inactive');
                     }
                 });
-                
                 this.loadMySessions();
             },
 
             async saveSessionToProfile() {
                 if (!this.data.currentUser || !this.data.sessionId) return;
-
                 const { error } = await supabaseClient
                     .from('saved_sessions')
-                    .insert({
-                        user_id: this.data.currentUser.id,
-                        session_id: this.data.sessionId
-                    });
+                    .insert({ user_id: this.data.currentUser.id, session_id: this.data.sessionId });
 
                 if (error) {
                     if (error.code === '23505') {
@@ -913,7 +872,7 @@
             },
 
             // ============================================
-            // SESSION MANAGEMENT
+            // SESSION MANAGEMENT (Music Ownership)
             // ============================================
 
             async createSession() {
@@ -949,29 +908,31 @@
                 this.data.finalizedAt = null;
                 this.data.sessionHash = null;
 
-                // Create collaborator entry
+                // Create first contributor entry (the creator)
                 const collabData = {
                     session_id: sessionId,
                     percentage: APP_CONFIG.DEFAULT_CREATOR_SPLIT,
                     is_creator: true,
                     device_id: this.data.currentUser ? null : this.data.deviceId,
                     user_id: this.data.currentUser?.id || null,
-                    legal_name: this.data.profile?.legal_name || ''
+                    legal_name: this.data.profile?.legal_name || '',
+                    pro_affiliation: this.data.profile?.pro_affiliation || 'ASCAP',
+                    ipi_number: this.data.profile?.ipi_number || ''
                 };
 
                 const { data: collab } = await supabaseClient
-                    .from('collaborators')
+                    .from('contributors')
                     .insert(collabData)
                     .select()
                     .single();
 
                 this.data.currentUserId = collab.id;
-                this.data.collaborators = [this.formatCollaborator(collab)];
+                this.data.contributors = [this.formatContributor(collab)];
 
                 localStorage.setItem(APP_CONFIG.STORAGE_KEYS.ACTIVE_SESSION, sessionId);
                 this.setupRealtime(sessionId);
                 this.showSession();
-                this.showToast('Session created!', 'success');
+                this.showToast('Session created! Add your song and contributors.', 'success');
             },
 
             async joinSession() {
@@ -997,7 +958,7 @@
                 }
 
                 if (session.finalized) {
-                    this.showToast('This session has already been finalized.', 'info');
+                    this.showToast('This agreement has already been finalized.', 'info');
                 }
 
                 this.data.sessionId = sessionId;
@@ -1007,9 +968,9 @@
                 this.data.sessionHash = session.hash;
                 this.data.createdAt = session.created_at;
 
-                // Check if user already has an entry in this session
+                // Check if user already has a contributor entry
                 let existingQuery = supabaseClient
-                    .from('collaborators')
+                    .from('contributors')
                     .select('*')
                     .eq('session_id', sessionId);
 
@@ -1020,33 +981,33 @@
                 }
 
                 const { data: existingCollab } = await existingQuery.maybeSingle();
-
                 let myCollab;
 
                 if (existingCollab) {
                     myCollab = existingCollab;
                 } else if (!session.finalized) {
-                    // Add new collaborator
+                    // Add new contributor
                     const newCollabData = {
                         session_id: sessionId,
                         percentage: 0,
                         is_creator: false,
                         device_id: this.data.currentUser ? null : this.data.deviceId,
                         user_id: this.data.currentUser?.id || null,
-                        legal_name: this.data.profile?.legal_name || ''
+                        legal_name: this.data.profile?.legal_name || '',
+                        pro_affiliation: this.data.profile?.pro_affiliation || 'ASCAP',
+                        ipi_number: this.data.profile?.ipi_number || ''
                     };
 
                     const { data: newCollab, error: insertError } = await supabaseClient
-                        .from('collaborators')
+                        .from('contributors')
                         .insert(newCollabData)
                         .select()
                         .single();
 
                     if (insertError) {
                         if (insertError.code === '23505') {
-                            // Race condition - fetch existing
                             const { data: raceCollab } = await supabaseClient
-                                .from('collaborators')
+                                .from('contributors')
                                 .select('*')
                                 .eq('session_id', sessionId)
                                 .eq('user_id', this.data.currentUser?.id)
@@ -1065,18 +1026,18 @@
                     this.data.currentUserId = myCollab.id;
                 }
 
-                // Load all collaborators
-                const { data: collaborators } = await supabaseClient
-                    .from('collaborators')
+                // Load all contributors
+                const { data: contributors } = await supabaseClient
+                    .from('contributors')
                     .select('*')
                     .eq('session_id', sessionId);
 
-                this.data.collaborators = (collaborators || []).map(c => this.formatCollaborator(c));
+                this.data.contributors = (contributors || []).map(c => this.formatContributor(c));
 
                 localStorage.setItem(APP_CONFIG.STORAGE_KEYS.ACTIVE_SESSION, sessionId);
                 this.setupRealtime(sessionId);
                 this.showSession();
-                this.renderCollaborators();
+                this.renderContributors();
                 this.showToast('Joined session!', 'success');
             },
 
@@ -1099,9 +1060,8 @@
                 this.data.sessionHash = session.hash;
                 this.data.createdAt = session.created_at;
 
-                // Find my collaborator entry
                 let myQuery = supabaseClient
-                    .from('collaborators')
+                    .from('contributors')
                     .select('*')
                     .eq('session_id', sessionId);
 
@@ -1112,32 +1072,32 @@
                 }
 
                 const { data: myCollab } = await myQuery.maybeSingle();
-
                 if (myCollab) {
                     this.data.currentUserId = myCollab.id;
                 }
 
-                const { data: collaborators } = await supabaseClient
-                    .from('collaborators')
+                const { data: contributors } = await supabaseClient
+                    .from('contributors')
                     .select('*')
                     .eq('session_id', sessionId);
 
-                this.data.collaborators = (collaborators || []).map(c => this.formatCollaborator(c));
+                this.data.contributors = (contributors || []).map(c => this.formatContributor(c));
 
                 this.setupRealtime(sessionId);
                 this.showSession();
-                this.renderCollaborators();
+                this.renderContributors();
             },
 
-            formatCollaborator(c) {
+            formatContributor(c) {
                 return {
                     id: c.id,
                     legalName: c.legal_name || '',
                     email: c.email || '',
                     proAffiliation: c.pro_affiliation || 'ASCAP',
                     ipiNumber: c.ipi_number || '',
-                    contribution: c.contribution || 'Both',
-                    percentage: c.percentage || 0,
+                    role: c.role || 'Writer',           // Artist, Producer, Writer, Engineer, etc.
+                    rightsType: c.rights_type || 'Both', // Master, Publishing, Both
+                    percentage: c.percentage || 0,       // Ownership percentage
                     signatureData: c.signature_data,
                     signedAt: c.signed_at,
                     isCurrentUser: c.id === this.data.currentUserId,
@@ -1158,16 +1118,16 @@
                     .on('postgres_changes', {
                         event: '*',
                         schema: 'public',
-                        table: 'collaborators',
+                        table: 'contributors',
                         filter: `session_id=eq.${sessionId}`
                     }, async () => {
-                        const { data: collaborators } = await supabaseClient
-                            .from('collaborators')
+                        const { data: contributors } = await supabaseClient
+                            .from('contributors')
                             .select('*')
                             .eq('session_id', sessionId);
 
-                        this.data.collaborators = (collaborators || []).map(c => this.formatCollaborator(c));
-                        this.renderCollaborators();
+                        this.data.contributors = (contributors || []).map(c => this.formatContributor(c));
+                        this.renderContributors();
                     })
                     .on('postgres_changes', {
                         event: 'UPDATE',
@@ -1188,10 +1148,10 @@
 
                             if (!wasFinalized && payload.new.finalized) {
                                 this.showFinalizedState();
-                                this.showToast('Session finalized!', 'success');
+                                this.showToast('Agreement finalized!', 'success');
                             }
 
-                            this.renderCollaborators();
+                            this.renderContributors();
                         }
                     })
                     .subscribe((status) => {
@@ -1263,10 +1223,10 @@
             },
 
             // ============================================
-            // COLLABORATOR MANAGEMENT
+            // CONTRIBUTOR MANAGEMENT
             // ============================================
 
-            async updateCollaborator(id, field, value) {
+            async updateContributor(id, field, value) {
                 if (this.data.isFinalized) return;
 
                 const updateData = {};
@@ -1275,14 +1235,15 @@
                     'email': 'email',
                     'proAffiliation': 'pro_affiliation',
                     'ipiNumber': 'ipi_number',
-                    'contribution': 'contribution',
+                    'role': 'role',
+                    'rightsType': 'rights_type',
                     'percentage': 'percentage'
                 };
 
                 updateData[fieldMap[field] || field] = value;
 
                 const { error } = await supabaseClient
-                    .from('collaborators')
+                    .from('contributors')
                     .update(updateData)
                     .eq('id', id);
 
@@ -1291,27 +1252,27 @@
                     return;
                 }
 
-                const c = this.data.collaborators.find(x => x.id === id);
+                const c = this.data.contributors.find(x => x.id === id);
                 if (c) {
                     c[field] = value;
                     if (field === 'percentage') this.updateTotal();
                 }
             },
 
-            async removeCollaborator(id) {
+            async removeContributor(id) {
                 if (this.data.isFinalized) return;
-                if (this.data.collaborators.length <= 1) {
-                    this.showToast('Cannot remove the last collaborator', 'error');
+                if (this.data.contributors.length <= 1) {
+                    this.showToast('Cannot remove the last contributor', 'error');
                     return;
                 }
 
                 const { error } = await supabaseClient
-                    .from('collaborators')
+                    .from('contributors')
                     .delete()
                     .eq('id', id);
 
                 if (error) {
-                    this.showToast('Error removing collaborator', 'error');
+                    this.showToast('Error removing contributor', 'error');
                     return;
                 }
 
@@ -1323,20 +1284,16 @@
             },
 
             async leaveSession() {
-                // Clear localStorage session first
                 localStorage.removeItem(APP_CONFIG.STORAGE_KEYS.ACTIVE_SESSION);
                 
-                // Remove user from session if they have an entry
                 if (this.data.currentUserId) {
-                    await this.removeCollaborator(this.data.currentUserId);
+                    await this.removeContributor(this.data.currentUserId);
                 }
                 
-                // Clear session data
                 this.data.sessionId = null;
                 this.data.currentUserId = null;
-                this.data.collaborators = [];
+                this.data.contributors = [];
                 
-                // Remove realtime subscription
                 if (this.data.realtimeChannel) {
                     supabaseClient.removeChannel(this.data.realtimeChannel);
                     this.data.realtimeChannel = null;
@@ -1347,11 +1304,8 @@
             },
             
             goHome() {
-                // Just go back to landing without leaving the session
-                // This keeps the session in the background but clears active session
                 localStorage.removeItem(APP_CONFIG.STORAGE_KEYS.ACTIVE_SESSION);
                 
-                // Remove realtime subscription
                 if (this.data.realtimeChannel) {
                     supabaseClient.removeChannel(this.data.realtimeChannel);
                     this.data.realtimeChannel = null;
@@ -1361,7 +1315,7 @@
             },
 
             updateTotal() {
-                const total = this.data.collaborators.reduce((sum, c) => sum + (parseInt(c.percentage) || 0), 0);
+                const total = this.data.contributors.reduce((sum, c) => sum + (parseInt(c.percentage) || 0), 0);
                 const ring = document.getElementById('progressRing');
                 const display = document.getElementById('totalPercent');
                 const btn = document.getElementById('finalizeBtn');
@@ -1372,7 +1326,7 @@
 
                 if (this.data.isFinalized) {
                     btn.disabled = true;
-                    btn.textContent = 'Session Finalized';
+                    btn.textContent = 'Agreement Finalized';
                     btn.className = 'w-full py-4 rounded-2xl bg-green-500/20 text-green-400 font-semibold border border-green-500/30';
                     msg.classList.add('hidden');
                     return;
@@ -1382,7 +1336,7 @@
                     ring.style.background = `conic-gradient(#30D158 100%, #30D158 100%)`;
                     btn.disabled = false;
                     btn.className = 'w-full py-4 rounded-2xl btn-primary text-lg font-semibold';
-                    btn.textContent = 'Generate Legal Document →';
+                    btn.textContent = 'Finalize Agreement →';
                     msg.classList.add('hidden');
                 } else {
                     btn.disabled = true;
@@ -1392,64 +1346,76 @@
                 }
             },
 
-            renderCollaborators() {
+            renderContributors() {
                 const list = document.getElementById('collaboratorsList');
                 const isLocked = this.data.isFinalized;
 
-                if (this.data.collaborators.length === 0) {
-                    list.innerHTML = '<p class="text-center text-gray-400 py-4">No collaborators yet</p>';
+                if (this.data.contributors.length === 0) {
+                    list.innerHTML = '<p class="text-center text-gray-400 py-4">No contributors yet</p>';
                     return;
                 }
 
-                list.innerHTML = this.data.collaborators.map(c => `
+                list.innerHTML = this.data.contributors.map(c => `
                     <div class="glass rounded-2xl p-4 space-y-3 ${c.signatureData ? 'border-green-500/30' : ''} ${isLocked ? 'opacity-75' : ''}">
                         <div class="flex justify-between items-start">
                             <div class="flex-1 space-y-2">
                                 <input type="text" placeholder="Legal Full Name" value="${c.legalName}" 
-                                    onchange="app.updateCollaborator('${c.id}', 'legalName', this.value)"
+                                    onchange="app.updateContributor('${c.id}', 'legalName', this.value)"
                                     class="ios-input w-full px-3 py-2 rounded-lg text-sm font-medium"
                                     ${isLocked ? 'disabled' : ''}>
                                 <div class="flex gap-2">
-                                    <select onchange="app.updateCollaborator('${c.id}', 'proAffiliation', this.value)" 
-                                        class="ios-input px-2 py-2 rounded-lg text-xs w-20"
+                                    <select onchange="app.updateContributor('${c.id}', 'role', this.value)" 
+                                        class="ios-input px-2 py-2 rounded-lg text-xs flex-1"
+                                        ${isLocked ? 'disabled' : ''}>
+                                        <option value="Artist" ${c.role === 'Artist' ? 'selected' : ''}>Artist</option>
+                                        <option value="Producer" ${c.role === 'Producer' ? 'selected' : ''}>Producer</option>
+                                        <option value="Writer" ${c.role === 'Writer' ? 'selected' : ''}>Writer</option>
+                                        <option value="Engineer" ${c.role === 'Engineer' ? 'selected' : ''}>Engineer</option>
+                                        <option value="Featured" ${c.role === 'Featured' ? 'selected' : ''}>Featured</option>
+                                        <option value="Other" ${c.role === 'Other' ? 'selected' : ''}>Other</option>
+                                    </select>
+                                    <select onchange="app.updateContributor('${c.id}', 'rightsType', this.value)" 
+                                        class="ios-input px-2 py-2 rounded-lg text-xs flex-1"
+                                        ${isLocked ? 'disabled' : ''}>
+                                        <option value="Master" ${c.rightsType === 'Master' ? 'selected' : ''}>Master</option>
+                                        <option value="Publishing" ${c.rightsType === 'Publishing' ? 'selected' : ''}>Publishing</option>
+                                        <option value="Both" ${c.rightsType === 'Both' ? 'selected' : ''}>Both</option>
+                                    </select>
+                                </div>
+                                <div class="flex gap-2">
+                                    <select onchange="app.updateContributor('${c.id}', 'proAffiliation', this.value)" 
+                                        class="ios-input px-2 py-2 rounded-lg text-xs w-24"
                                         ${isLocked ? 'disabled' : ''}>
                                         <option value="ASCAP" ${c.proAffiliation === 'ASCAP' ? 'selected' : ''}>ASCAP</option>
                                         <option value="BMI" ${c.proAffiliation === 'BMI' ? 'selected' : ''}>BMI</option>
                                         <option value="SESAC" ${c.proAffiliation === 'SESAC' ? 'selected' : ''}>SESAC</option>
+                                        <option value="GMR" ${c.proAffiliation === 'GMR' ? 'selected' : ''}>GMR</option>
                                         <option value="Other" ${c.proAffiliation === 'Other' ? 'selected' : ''}>Other</option>
                                     </select>
                                     <input type="text" placeholder="IPI #" value="${c.ipiNumber}" 
-                                        onchange="app.updateCollaborator('${c.id}', 'ipiNumber', this.value)"
+                                        onchange="app.updateContributor('${c.id}', 'ipiNumber', this.value)"
                                         class="ios-input flex-1 px-3 py-2 rounded-lg text-xs"
                                         ${isLocked ? 'disabled' : ''}>
                                 </div>
                             </div>
-                            ${!isLocked && this.data.collaborators.length > 1 && c.isCurrentUser ? `
-                                <button onclick="app.removeCollaborator('${c.id}')" class="ml-2 text-gray-500 p-1">✕</button>
+                            ${!isLocked && this.data.contributors.length > 1 && c.isCurrentUser ? `
+                                <button onclick="app.removeContributor('${c.id}')" class="ml-2 text-gray-500 p-1">✕</button>
                             ` : ''}
                         </div>
                         
                         <div class="flex gap-2 items-center pt-2 border-t border-white/10">
-                            <select onchange="app.updateCollaborator('${c.id}', 'contribution', this.value)" 
-                                class="ios-input text-xs bg-transparent border-none text-gray-400"
-                                ${isLocked ? 'disabled' : ''}>
-                                <option value="Lyrics" ${c.contribution === 'Lyrics' ? 'selected' : ''}>Lyrics</option>
-                                <option value="Music" ${c.contribution === 'Music' ? 'selected' : ''}>Music</option>
-                                <option value="Production" ${c.contribution === 'Production' ? 'selected' : ''}>Production</option>
-                                <option value="Both" ${c.contribution === 'Both' ? 'selected' : ''}>Both</option>
-                            </select>
-                            
+                            <span class="text-xs text-gray-400">Ownership:</span>
                             <div class="flex-1 flex items-center gap-2 justify-end">
                                 <input type="range" min="0" max="100" value="${c.percentage}" 
-                                    oninput="app.updateCollaborator('${c.id}', 'percentage', parseInt(this.value))"
-                                    class="w-24 accent-green-500"
+                                    oninput="app.updateContributor('${c.id}', 'percentage', parseInt(this.value))"
+                                    class="w-20 accent-green-500"
                                     ${isLocked ? 'disabled' : ''}>
-                                <div class="relative w-16">
+                                <div class="relative w-14">
                                     <input type="number" value="${c.percentage}" 
-                                        onchange="app.updateCollaborator('${c.id}', 'percentage', parseInt(this.value))"
+                                        onchange="app.updateContributor('${c.id}', 'percentage', parseInt(this.value))"
                                         class="ios-input w-full px-2 py-1 rounded text-center font-bold text-sm"
                                         ${isLocked ? 'disabled' : ''}>
-                                    <span class="absolute right-1 top-1/2 -translate-y-1/2 text-xs text-gray-500">%</span>
+                                    <span class="absolute right-0 top-1/2 -translate-y-1/2 text-xs text-gray-500">%</span>
                                 </div>
                             </div>
                         </div>
@@ -1489,8 +1455,8 @@
             // SIGNATURE
             // ============================================
 
-            openSignature(collabId) {
-                this.data.signingId = collabId;
+            openSignature(contributorId) {
+                this.data.signingId = contributorId;
                 document.getElementById('signatureScreen').classList.remove('hidden-screen');
                 setTimeout(() => this.initCanvas(), 100);
             },
@@ -1554,7 +1520,7 @@
 
             async saveSignature() {
                 if (this.data.isFinalized) {
-                    this.showToast('Session is already finalized', 'error');
+                    this.showToast('Agreement is already finalized', 'error');
                     return;
                 }
 
@@ -1562,7 +1528,7 @@
                 const data = canvas.toDataURL();
 
                 const { error } = await supabaseClient
-                    .from('collaborators')
+                    .from('contributors')
                     .update({
                         signature_data: data,
                         signed_at: new Date().toISOString()
@@ -1576,50 +1542,46 @@
 
                 document.getElementById('signatureScreen').classList.add('hidden-screen');
 
-                // Refresh collaborators
-                const { data: collaborators } = await supabaseClient
-                    .from('collaborators')
+                const { data: contributors } = await supabaseClient
+                    .from('contributors')
                     .select('*')
                     .eq('session_id', this.data.sessionId);
 
-                this.data.collaborators = (collaborators || []).map(c => this.formatCollaborator(c));
-                this.renderCollaborators();
+                this.data.contributors = (contributors || []).map(c => this.formatContributor(c));
+                this.renderContributors();
                 this.showToast('Signature saved!', 'success');
 
-                // Check if all signed
-                const total = this.data.collaborators.reduce((sum, c) => sum + (c.percentage || 0), 0);
-                const allSigned = this.data.collaborators.every(c => c.signatureData && c.signedAt);
+                const total = this.data.contributors.reduce((sum, c) => sum + (c.percentage || 0), 0);
+                const allSigned = this.data.contributors.every(c => c.signatureData && c.signedAt);
 
                 if (allSigned && total === 100) {
                     this.showToast('All parties signed! Finalizing...', 'success');
-                    await this.finalizeSheet();
+                    await this.finalizeAgreement();
                 }
             },
 
             // ============================================
-            // FINALIZATION & PDF
+            // FINALIZATION & AGREEMENT PDF
             // ============================================
 
             async updateSongTitle(val) {
                 if (this.data.isFinalized) return;
-
                 this.data.songTitle = val;
-
                 await supabaseClient
                     .from('sessions')
                     .update({ song_title: val })
                     .eq('id', this.data.sessionId);
             },
 
-            async finalizeSheet() {
+            async finalizeAgreement() {
                 if (this.data.isFinalized) return;
 
-                const total = this.data.collaborators.reduce((sum, c) => sum + (parseInt(c.percentage) || 0), 0);
+                const total = this.data.contributors.reduce((sum, c) => sum + (parseInt(c.percentage) || 0), 0);
                 if (total !== 100) return;
 
-                const allSigned = this.data.collaborators.every(c => c.signatureData && c.signedAt);
+                const allSigned = this.data.contributors.every(c => c.signatureData && c.signedAt);
                 if (!allSigned) {
-                    this.showToast("All parties must sign before finalizing.", 'error');
+                    this.showToast("All contributors must sign before finalizing.", 'error');
                     return;
                 }
 
@@ -1644,17 +1606,21 @@
                 this.data.finalizedAt = finalizedAt;
                 this.data.sessionHash = hash;
 
-                this.generatePDF(hash, finalizedAt);
+                this.generateAgreementPDF(hash, finalizedAt);
                 this.showFinalizedState();
-                this.renderCollaborators();
-                this.showToast('Document generated!', 'success');
+                this.renderContributors();
+                this.showToast('Ownership agreement finalized!', 'success');
             },
 
             async generateHash() {
                 const data = {
                     songTitle: this.data.songTitle,
-                    collaborators: this.data.collaborators.map(c => ({
+                    sessionId: this.data.sessionId,
+                    finalizedAt: new Date().toISOString(),
+                    contributors: this.data.contributors.map(c => ({
                         name: c.legalName,
+                        role: c.role,
+                        rightsType: c.rightsType,
                         percentage: c.percentage,
                         pro: c.proAffiliation,
                         signedAt: c.signedAt
@@ -1667,59 +1633,62 @@
                 return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
             },
 
-            generatePDF(hash, finalizedAt) {
+            generateAgreementPDF(hash, finalizedAt) {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
                 const pageWidth = doc.internal.pageSize.getWidth();
 
-                doc.setFontSize(24);
+                // Header
+                doc.setFontSize(20);
                 doc.setTextColor(0, 0, 0);
-                doc.text("MUSIC SPLIT SHEET AGREEMENT", pageWidth/2, 20, { align: 'center' });
+                doc.text("MUSIC OWNERSHIP AGREEMENT", pageWidth/2, 20, { align: 'center' });
 
                 doc.setFontSize(10);
                 doc.setTextColor(100, 100, 100);
-                doc.text("Legally binding agreement for songwriting splits", pageWidth/2, 28, { align: 'center' });
+                doc.text("SplitSheet | split sheet and ownership rights", pageWidth/2, 28, { align: 'center' });
 
+                // Song Info
                 doc.setFontSize(12);
                 doc.setTextColor(0, 0, 0);
                 doc.text(`Song Title: ${this.data.songTitle || '[Untitled]'}`, 20, 45);
-                doc.text(`Date: ${new Date(this.data.createdAt).toLocaleDateString()}`, 20, 52);
-                doc.text(`Session ID: ${this.data.sessionId}`, 20, 59);
+                doc.text(`Session ID: ${this.data.sessionId}`, 20, 52);
+                doc.text(`Date Created: ${new Date(this.data.createdAt).toLocaleDateString()}`, 20, 59);
+                doc.text(`Finalized: ${new Date(finalizedAt).toLocaleString()}`, 20, 66);
 
-                if (finalizedAt) {
-                    doc.text(`Finalized: ${new Date(finalizedAt).toLocaleString()}`, 20, 66);
-                }
-
+                // Contributors Table Header
                 let y = 80;
                 doc.setFillColor(240, 240, 240);
                 doc.rect(20, y-5, pageWidth-40, 10, 'F');
-                doc.setFontSize(10);
+                doc.setFontSize(9);
                 doc.setFont(undefined, 'bold');
-                doc.text("Writer", 22, y);
-                doc.text("PRO", 70, y);
-                doc.text("Role", 100, y);
-                doc.text("Split", 130, y);
-                doc.text("IPI #", 150, y);
+                doc.text("Contributor", 22, y);
+                doc.text("Role", 75, y);
+                doc.text("Rights", 100, y);
+                doc.text("PRO", 125, y);
+                doc.text("Split", 150, y);
 
+                // Contributors Data
                 doc.setFont(undefined, 'normal');
                 y += 10;
-                this.data.collaborators.forEach(c => {
+                this.data.contributors.forEach(c => {
                     doc.text(c.legalName || '[Name]', 22, y);
-                    doc.text(c.proAffiliation, 70, y);
-                    doc.text(c.contribution, 100, y);
-                    doc.text(c.percentage + '%', 130, y);
-                    doc.text(c.ipiNumber || '-', 150, y);
-                    y += 8;
+                    doc.text(c.role, 75, y);
+                    doc.text(c.rightsType, 100, y);
+                    doc.text(c.proAffiliation, 125, y);
+                    doc.text(c.percentage + '%', 150, y);
+                    y += 7;
                 });
 
-                y += 15;
+                // Agreement Text
+                y += 10;
                 doc.setFontSize(9);
                 doc.setTextColor(60, 60, 60);
-                const agreement = `The undersigned agree that the above splits represent the fair division of the composition copyright for the song "${this.data.songTitle || '[Untitled]'}". These percentages shall be used for registration with Performance Rights Organizations (ASCAP, BMI, SESAC, etc.) and for all royalty distributions.`;
-                doc.text(agreement, 20, y, { maxWidth: pageWidth-40, align: 'justify' });
+                const agreementText = `The undersigned contributors agree that the above splits represent the fair division of ownership rights for the song "${this.data.songTitle || '[Untitled]'}". This includes both Master Recording rights and Publishing rights as indicated. These percentages shall be used for all royalty distributions, PRO registrations, and any licensing agreements. This agreement is binding and enforceable.`;
+                doc.text(agreementText, 20, y, { maxWidth: pageWidth-40, align: 'justify' });
 
-                y += 25;
-                this.data.collaborators.forEach((c, idx) => {
+                // Signature Section
+                y += 35;
+                this.data.contributors.forEach((c, idx) => {
                     if (y > 250) {
                         doc.addPage();
                         y = 30;
@@ -1727,7 +1696,7 @@
 
                     doc.setFontSize(10);
                     doc.setTextColor(0, 0, 0);
-                    doc.text(c.legalName || `Writer ${idx+1}`, 20, y);
+                    doc.text(`${c.legalName || `Contributor ${idx+1}`} (${c.role})`, 20, y);
 
                     if (c.signatureData) {
                         doc.addImage(c.signatureData, 'PNG', 20, y+2, 50, 20);
@@ -1738,22 +1707,24 @@
                     doc.setTextColor(100, 100, 100);
                     doc.text("Signature", 20, y+26);
                     doc.text(`Date: ${new Date(c.signedAt).toLocaleDateString()}`, 100, y+22);
+                    doc.text(`IPI: ${c.ipiNumber || 'N/A'}`, 100, y+26);
 
                     y += 35;
                 });
 
+                // Footer
                 doc.setFontSize(8);
                 doc.setTextColor(150, 150, 150);
-                doc.text(`Document Hash: ${hash || 'PENDING'}`, pageWidth/2, 280, { align: 'center' });
-                doc.text("Generated by SplitSheet | Digital Split Sheet Agreement", pageWidth/2, 285, { align: 'center' });
-                doc.text("This document serves as a binding agreement between the parties listed above.", pageWidth/2, 290, { align: 'center' });
+                doc.text(`Document Hash: ${hash}`, pageWidth/2, 280, { align: 'center' });
+                doc.text("This document serves as a binding music ownership agreement.", pageWidth/2, 285, { align: 'center' });
+                doc.text("Verify at: splitsheet.app/verify", pageWidth/2, 290, { align: 'center' });
 
-                doc.save(`SplitSheet_${this.data.songTitle || 'Agreement'}_${this.data.sessionId}.pdf`);
+                doc.save(`OwnershipAgreement_${this.data.songTitle || 'Song'}_${this.data.sessionId}.pdf`);
             },
 
             downloadPDF() {
                 if (this.data.sessionHash && this.data.finalizedAt) {
-                    this.generatePDF(this.data.sessionHash, this.data.finalizedAt);
+                    this.generateAgreementPDF(this.data.sessionHash, this.data.finalizedAt);
                 }
             },
 

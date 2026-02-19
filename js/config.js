@@ -1,5 +1,5 @@
-// Supabase Configuration
-// Replace these with your actual Supabase credentials
+// SplitSheet Configuration - Music Ownership Agreement Engine
+// Repository: https://github.com/ElisonInc/splitsheet-app
 
 const SUPABASE_CONFIG = {
     // Your Supabase project URL
@@ -14,23 +14,26 @@ const SUPABASE_CONFIG = {
 
 // App Configuration
 const APP_CONFIG = {
-    // App version for cache busting
+    // App version
     VERSION: '1.0.0',
     
     // Cache name for service worker
     CACHE_NAME: 'splitsheet-v1',
     
-    // Maximum number of collaborators per session
-    MAX_COLLABORATORS: 10,
+    // Maximum number of contributors per session
+    MAX_CONTRIBUTORS: 10,
     
-    // Default split percentage for creator
-    DEFAULT_CREATOR_SPLIT: 50,
+    // Default ownership percentage for creator
+    DEFAULT_CREATOR_OWNERSHIP: 50,
+    
+    // Contributor Roles
+    CONTRIBUTOR_ROLES: ['Artist', 'Producer', 'Writer', 'Engineer', 'Featured', 'Other'],
+    
+    // Rights Types (Master, Publishing, or Both)
+    RIGHTS_TYPES: ['Master', 'Publishing', 'Both'],
     
     // Supported PRO affiliations
-    PRO_OPTIONS: ['ASCAP', 'BMI', 'SESAC', 'GMR', 'Other'],
-    
-    // Contribution types
-    CONTRIBUTION_TYPES: ['Lyrics', 'Music', 'Production', 'Both'],
+    PRO_AFFILIATIONS: ['ASCAP', 'BMI', 'SESAC', 'GMR', 'Other'],
     
     // Local storage keys
     STORAGE_KEYS: {
