@@ -1,0 +1,12 @@
+{
+  "name": "songsplit-app",
+  "version": "1.0.0",
+  "description": "SongSplit App - Music Ownership Agreements",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "keywords": ["music", "ownership", "agreement", "pwa"],
+  "author": "Elison Inc.",
+  "license": "MIT"
+}

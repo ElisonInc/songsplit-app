@@ -35,6 +35,27 @@
 <body class="bg-black text-white min-h-screen">
     <div class="grain"></div>
     
+    <!-- Mobile App Banner (hidden by default, shown via JS on mobile) -->
+    <div id="mobileBanner" class="hidden fixed top-0 left-0 right-0 z-[60] bg-gradient-to-r from-green-500 to-blue-500 text-black px-4 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-black/20 flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                </div>
+                <div>
+                    <p class="font-semibold text-sm">Get the SongSplit App</p>
+                    <p class="text-xs opacity-80">Create ownership agreements on the go</p>
+                </div>
+            </div>
+            <a href="https://app.songsplit.org" class="bg-black text-white px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap">
+                Download
+            </a>
+        </div>
+        <button onclick="document.getElementById('mobileBanner').style.display='none'" class="absolute top-1 right-1 p-1 opacity-60 hover:opacity-100">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+    </div>
+    
     <!-- Navigation -->
     <nav class="fixed top-0 left-0 right-0 z-50 glass border-b border-white/5">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
@@ -46,9 +67,9 @@
                 <a href="#how-it-works" class="nav-link text-sm text-gray-300 hover:text-white transition">How It Works</a>
                 <a href="#features" class="nav-link text-sm text-gray-300 hover:text-white transition">Features</a>
                 <a href="#legal" class="nav-link text-sm text-gray-300 hover:text-white transition">Legal</a>
-                <a href="/app" class="btn-primary px-5 py-2.5 rounded-full text-sm">Open App</a>
+                <a href="https://app.songsplit.org" class="btn-primary px-5 py-2.5 rounded-full text-sm">Open App</a>
             </div>
-            <a href="/app" class="md:hidden btn-primary px-4 py-2 rounded-full text-sm">Open App</a>
+            <a href="https://app.songsplit.org" class="md:hidden btn-primary px-4 py-2 rounded-full text-sm">Open App</a>
         </div>
     </nav>
 
@@ -70,7 +91,7 @@
             </p>
             
             <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-                <a href="/app" class="btn-primary px-8 py-4 rounded-full text-lg flex items-center justify-center gap-2">
+                <a href="https://app.songsplit.org" class="btn-primary px-8 py-4 rounded-full text-lg flex items-center justify-center gap-2">
                     Start Creating
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
                 </a>
@@ -227,7 +248,7 @@
             <p class="text-gray-400 text-lg mb-8 max-w-2xl mx-auto">
                 Free during beta. No credit card required. Create your first ownership agreement in under 2 minutes.
             </p>
-            <a href="/app" class="btn-primary px-10 py-4 rounded-full text-lg inline-flex items-center gap-2">
+            <a href="https://app.songsplit.org" class="btn-primary px-10 py-4 rounded-full text-lg inline-flex items-center gap-2">
                 Launch SongSplit
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
             </a>
@@ -243,7 +264,7 @@
                     <span class="font-bold text-lg">SongSplit</span>
                 </div>
                 <div class="flex gap-6 text-sm text-gray-400">
-                    <a href="/app" class="hover:text-white transition">Open App</a>
+                    <a href="https://app.songsplit.org" class="hover:text-white transition">Open App</a>
                     <a href="mailto:hello@songsplit.org" class="hover:text-white transition">Contact</a>
                     <a href="https://github.com/ElisonInc/splitsheet-app" class="hover:text-white transition">GitHub</a>
                 </div>
@@ -251,5 +272,30 @@
             </div>
         </div>
     </footer>
+    <!-- Mobile Detection Script -->
+    <script>
+        // Detect mobile devices
+        function isMobile() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+        
+        // Show mobile banner on mobile devices
+        if (isMobile()) {
+            const banner = document.getElementById('mobileBanner');
+            const nav = document.querySelector('nav');
+            if (banner) {
+                banner.classList.remove('hidden');
+                // Adjust nav position to account for banner
+                if (nav) {
+                    nav.style.top = '76px';
+                }
+                // Adjust hero section
+                const hero = document.querySelector('.hero-gradient');
+                if (hero) {
+                    hero.style.paddingTop = '120px';
+                }
+            }
+        }
+    </script>
 </body>
 </html>
