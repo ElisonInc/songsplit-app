@@ -4,298 +4,420 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="SongSplit - Real-time music ownership agreements. Define who owns what at the moment of creation.">
-    <meta name="theme-color" content="#000000">
+    <meta name="theme-color" content="#0a0a0a">
     
     <title>SongSplit | Real-Time Music Ownership Agreements</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #000; color: #fff; overflow-x: hidden; }
-        .gradient-text { background: linear-gradient(135deg, #30D158 0%, #007AFF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .hero-gradient { background: radial-gradient(ellipse at top, rgba(48, 209, 88, 0.15) 0%, transparent 50%), radial-gradient(ellipse at bottom, rgba(0, 122, 255, 0.1) 0%, transparent 50%); }
-        .glass { background: rgba(28, 28, 30, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .btn-primary { background: #30D158; color: #000; font-weight: 600; transition: all 0.2s; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(48, 209, 88, 0.3); }
-        .feature-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); transition: all 0.3s; }
-        .feature-card:hover { background: rgba(255, 255, 255, 0.06); border-color: rgba(48, 209, 88, 0.3); transform: translateY(-4px); }
-        .step-number { background: linear-gradient(135deg, #30D158, #007AFF); }
-        .nav-link { position: relative; }
-        .nav-link::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px; background: #30D158; transition: width 0.3s; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #0a0a0a; color: #fff; overflow-x: hidden; }
+        
+        /* Gradient Text */
+        .gradient-text { 
+            background: linear-gradient(135deg, #22c55e 0%, #3b82f6 50%, #22c55e 100%); 
+            background-size: 200% auto;
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent;
+            animation: gradient-shift 3s ease infinite;
+        }
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% center; }
+            50% { background-position: 100% center; }
+        }
+        
+        /* Background Effects */
+        .noise {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 9999; opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+        
+        .glow {
+            position: absolute; width: 600px; height: 600px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(34,197,94,0.15) 0%, transparent 70%);
+            filter: blur(60px); pointer-events: none;
+        }
+        .glow-blue {
+            background: radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 70%);
+        }
+        
+        /* Glass */
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        
+        /* Button Styles */
+        .btn-primary {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #000; font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 30px rgba(34, 197, 94, 0.4);
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Cards */
+        .feature-card {
+            background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(34, 197, 94, 0.3);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 60px rgba(34,197,94,0.1);
+        }
+        
+        /* Step Number */
+        .step-num {
+            background: linear-gradient(135deg, #22c55e, #3b82f6);
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.4);
+        }
+        
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.1); }
+        }
+        .animate-pulse-glow { animation: pulse-glow 4s ease-in-out infinite; }
+        
+        /* Navigation */
+        .nav-link { position: relative; transition: color 0.3s; }
+        .nav-link::after {
+            content: ''; position: absolute; bottom: -4px; left: 0;
+            width: 0; height: 2px; background: #22c55e;
+            transition: width 0.3s;
+        }
         .nav-link:hover::after { width: 100%; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        .float { animation: float 6s ease-in-out infinite; }
-        .grain { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; opacity: 0.02; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); }
+        
+        /* Mobile Banner */
+        #mobileBanner {
+            background: linear-gradient(90deg, #22c55e, #3b82f6);
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+        }
+        #mobileBanner.show { transform: translateY(0); }
     </style>
 </head>
-<body class="bg-black text-white min-h-screen">
-    <div class="grain"></div>
+<body class="bg-[#0a0a0a] text-white antialiased">
+    <div class="noise"></div>
     
-    <!-- Mobile App Banner (hidden by default, shown via JS on mobile) -->
-    <div id="mobileBanner" class="hidden fixed top-0 left-0 right-0 z-[60] bg-gradient-to-r from-green-500 to-blue-500 text-black px-4 py-3">
+    <!-- Mobile App Banner -->
+    <div id="mobileBanner" class="fixed top-0 left-0 right-0 z-[100] text-black px-4 py-3">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-black/20 flex items-center justify-center">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                 </div>
                 <div>
-                    <p class="font-semibold text-sm">Get the SongSplit App</p>
+                    <p class="font-bold text-sm">Get the SongSplit App</p>
                     <p class="text-xs opacity-80">Create ownership agreements on the go</p>
                 </div>
             </div>
-            <a href="https://app-kappa-nine-45.vercel.app" class="bg-black text-white px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap">
-                Download
+            <a href="https://app.songsplit.org" class="bg-black text-white px-5 py-2 rounded-full text-sm font-bold">
+                Open App
             </a>
         </div>
-        <button onclick="document.getElementById('mobileBanner').style.display='none'" class="absolute top-1 right-1 p-1 opacity-60 hover:opacity-100">
+        <button onclick="document.getElementById('mobileBanner').classList.remove('show')" class="absolute top-1 right-1 p-2 opacity-60 hover:opacity-100">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
     </div>
-    
+
     <!-- Navigation -->
-    <nav class="fixed top-0 left-0 right-0 z-50 glass border-b border-white/5">
+    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <a href="/" class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center font-bold text-black text-sm">S</div>
+            <a href="/" class="flex items-center gap-2 group">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center font-bold text-black text-lg group-hover:scale-110 transition">S</div>
                 <span class="font-bold text-xl tracking-tight">SongSplit</span>
             </a>
             <div class="hidden md:flex items-center gap-8">
-                <a href="#how-it-works" class="nav-link text-sm text-gray-300 hover:text-white transition">How It Works</a>
-                <a href="#features" class="nav-link text-sm text-gray-300 hover:text-white transition">Features</a>
-                <a href="#legal" class="nav-link text-sm text-gray-300 hover:text-white transition">Legal</a>
-                <a href="https://app-kappa-nine-45.vercel.app" class="btn-primary px-5 py-2.5 rounded-full text-sm">Open App</a>
+                <a href="#features" class="nav-link text-sm text-gray-400 hover:text-white">Features</a>
+                <a href="#how-it-works" class="nav-link text-sm text-gray-400 hover:text-white">How It Works</a>
+                <a href="#security" class="nav-link text-sm text-gray-400 hover:text-white">Security</a>
+                <a href="https://app.songsplit.org" class="btn-primary px-6 py-2.5 rounded-full text-sm">Launch App</a>
             </div>
-            <a href="https://app-kappa-nine-45.vercel.app" class="md:hidden btn-primary px-4 py-2 rounded-full text-sm">Open App</a>
+            <a href="https://app.songsplit.org" class="md:hidden btn-primary px-5 py-2 rounded-full text-sm font-semibold">Open App</a>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="hero-gradient min-h-screen flex items-center justify-center pt-20">
-        <div class="max-w-7xl mx-auto px-6 py-20 text-center">
-            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8">
+    <section class="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+        <!-- Background Glows -->
+        <div class="glow top-20 left-1/4 animate-pulse-glow"></div>
+        <div class="glow glow-blue bottom-20 right-1/4 animate-pulse-glow" style="animation-delay: 2s;"></div>
+        
+        <div class="relative z-10 max-w-6xl mx-auto px-6 py-20 text-center">
+            <!-- Badge -->
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8 animate-float">
                 <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-                <span class="text-sm text-gray-400">Now in Beta — Free to use</span>
+                <span class="text-sm text-gray-300">Now in Beta — Free Forever</span>
             </div>
             
-            <h1 class="text-5xl md:text-7xl font-bold leading-tight mb-6 max-w-4xl mx-auto">
-                Lock in <span class="gradient-text">ownership</span><br>before the session ends
+            <!-- Headline -->
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-black leading-[0.95] mb-8 tracking-tight">
+                Lock in<br>
+                <span class="gradient-text">ownership</span><br>
+                <span class="text-gray-500">before the<br>session ends.</span>
             </h1>
             
-            <p class="text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+            <!-- Subheadline -->
+            <p class="text-lg md:text-xl text-gray-400 mb-12 max-w-2xl mx-auto leading-relaxed">
                 SongSplit creates real-time, legally binding music ownership agreements. 
                 Define Master & Publishing rights while the creative vibe is fresh.
             </p>
             
+            <!-- CTA Buttons -->
             <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-                <a href="https://app-kappa-nine-45.vercel.app" class="btn-primary px-8 py-4 rounded-full text-lg flex items-center justify-center gap-2">
+                <a href="https://app.songsplit.org" class="btn-primary px-10 py-4 rounded-full text-lg flex items-center justify-center gap-2">
                     Start Creating
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
                 </a>
-                <a href="#how-it-works" class="px-8 py-4 rounded-full text-lg border border-white/20 hover:bg-white/5 transition flex items-center justify-center gap-2">
-                    Learn More
+                <a href="#how-it-works" class="btn-secondary px-10 py-4 rounded-full text-lg">
+                    See How It Works
                 </a>
             </div>
             
-            <!-- Trust Badges -->
-            <div class="flex flex-wrap justify-center gap-8 text-sm text-gray-500">
+            <!-- Trust Indicators -->
+            <div class="flex flex-wrap justify-center gap-6 text-sm text-gray-500">
                 <div class="flex items-center gap-2">
-                    <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
                     <span>Legally Binding</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                    <span>Bank-Level Security</span>
+                    <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    <span>Immutable Records</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     <span>PDF Agreements</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+        </div>
+    </section>
+
+    <!-- Features Grid -->
+    <section id="features" class="py-32 relative">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-20">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6">Built for Music Professionals</h2>
+                <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+                    Every feature designed to protect your creative work and prevent disputes before they happen.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="feature-card p-8 rounded-3xl">
+                    <div class="w-14 h-14 rounded-2xl bg-green-500/10 flex items-center justify-center text-green-400 mb-6">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    </div>
+                    <h3 class="font-bold text-xl mb-3">Legally Binding</h3>
+                    <p class="text-gray-400 leading-relaxed">Electronic signatures with explicit consent. Agreements recognized by PROs, labels, and courts.</p>
+                </div>
+                
+                <div class="feature-card p-8 rounded-3xl">
+                    <div class="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-400 mb-6">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    </div>
+                    <h3 class="font-bold text-xl mb-3">Immutable Records</h3>
+                    <p class="text-gray-400 leading-relaxed">Once signed, agreements are locked forever. SHA-256 verification ensures zero tampering.</p>
+                </div>
+                
+                <div class="feature-card p-8 rounded-3xl">
+                    <div class="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-400 mb-6">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    </div>
+                    <h3 class="font-bold text-xl mb-3">Master + Publishing</h3>
+                    <p class="text-gray-400 leading-relaxed">Define both rights clearly. No confusion about what type of ownership each person holds.</p>
+                </div>
+                
+                <div class="feature-card p-8 rounded-3xl">
+                    <div class="w-14 h-14 rounded-2xl bg-yellow-500/10 flex items-center justify-center text-yellow-400 mb-6">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                    </div>
+                    <h3 class="font-bold text-xl mb-3">Contributor Roles</h3>
+                    <p class="text-gray-400 leading-relaxed">Artist, Producer, Writer, Engineer, Featured. Everyone's contribution properly documented.</p>
+                </div>
+                
+                <div class="feature-card p-8 rounded-3xl">
+                    <div class="w-14 h-14 rounded-2xl bg-pink-500/10 flex items-center justify-center text-pink-400 mb-6">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+                    </div>
+                    <h3 class="font-bold text-xl mb-3">QR Code Sharing</h3>
+                    <p class="text-gray-400 leading-relaxed">No app required to join. Contributors scan a QR code or click a link. Anyone can participate.</p>
+                </div>
+                
+                <div class="feature-card p-8 rounded-3xl">
+                    <div class="w-14 h-14 rounded-2xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 mb-6">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    </div>
+                    <h3 class="font-bold text-xl mb-3">PDF Agreements</h3>
+                    <p class="text-gray-400 leading-relaxed">Download professionally formatted PDFs. Signatures, hashes, timestamps — everything included.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- How It Works -->
-    <section id="how-it-works" class="py-24 bg-black">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold mb-4">How It Works</h2>
+    <section id="how-it-works" class="py-32 relative border-t border-white/5">
+        <div class="glow glow-blue top-0 right-0 opacity-50"></div>
+        
+        <div class="max-w-6xl mx-auto px-6 relative">
+            <div class="text-center mb-20">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6">How It Works</h2>
                 <p class="text-gray-400 text-lg max-w-2xl mx-auto">
                     From first beat to signed agreement in minutes, not weeks.
                 </p>
             </div>
             
             <div class="grid md:grid-cols-4 gap-8">
-                <div class="text-center">
-                    <div class="step-number w-12 h-12 rounded-full flex items-center justify-center font-bold text-black mx-auto mb-4">1</div>
-                    <h3 class="font-semibold text-lg mb-2">Create Session</h3>
-                    <p class="text-gray-400 text-sm">Start a new session and name your song. Get a unique Session ID.</p>
+                <div class="relative">
+                    <div class="step-num w-16 h-16 rounded-2xl flex items-center justify-center font-black text-xl text-black mb-6">1</div>
+                    <h3 class="font-bold text-xl mb-3">Create Session</h3>
+                    <p class="text-gray-400 leading-relaxed">Start a new session and name your song. Get a unique Session ID for sharing.</p>
                 </div>
-                <div class="text-center">
-                    <div class="step-number w-12 h-12 rounded-full flex items-center justify-center font-bold text-black mx-auto mb-4">2</div>
-                    <h3 class="font-semibold text-lg mb-2">Add Contributors</h3>
-                    <p class="text-gray-400 text-sm">Invite artists, producers, writers. Everyone joins in real-time.</p>
+                
+                <div class="relative">
+                    <div class="step-num w-16 h-16 rounded-2xl flex items-center justify-center font-black text-xl text-black mb-6">2</div>
+                    <h3 class="font-bold text-xl mb-3">Add Contributors</h3>
+                    <p class="text-gray-400 leading-relaxed">Invite artists, producers, writers via QR code or link. Everyone joins in real-time.</p>
                 </div>
-                <div class="text-center">
-                    <div class="step-number w-12 h-12 rounded-full flex items-center justify-center font-bold text-black mx-auto mb-4">3</div>
-                    <h3 class="font-semibold text-lg mb-2">Define Ownership</h3>
-                    <p class="text-gray-400 text-sm">Set roles, rights (Master/Publishing), and ownership percentages.</p>
+                
+                <div class="relative">
+                    <div class="step-num w-16 h-16 rounded-2xl flex items-center justify-center font-black text-xl text-black mb-6">3</div>
+                    <h3 class="font-bold text-xl mb-3">Define Ownership</h3>
+                    <p class="text-gray-400 leading-relaxed">Set roles, rights (Master/Publishing), and ownership percentages that total 100%.</p>
                 </div>
-                <div class="text-center">
-                    <div class="step-number w-12 h-12 rounded-full flex items-center justify-center font-bold text-black mx-auto mb-4">4</div>
-                    <h3 class="font-semibold text-lg mb-2">Sign & Finalize</h3>
-                    <p class="text-gray-400 text-sm">Digital signatures from everyone. Legally binding agreement generated.</p>
+                
+                <div class="relative">
+                    <div class="step-num w-16 h-16 rounded-2xl flex items-center justify-center font-black text-xl text-black mb-6">4</div>
+                    <h3 class="font-bold text-xl mb-3">Sign & Finalize</h3>
+                    <p class="text-gray-400 leading-relaxed">Digital signatures from everyone. Legally binding PDF agreement generated instantly.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Features -->
-    <section id="features" class="py-24 bg-black border-t border-white/5">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold mb-4">Built for Music Professionals</h2>
-                <p class="text-gray-400 text-lg max-w-2xl mx-auto">
-                    Every feature designed to protect your creative work and prevent disputes.
-                </p>
-            </div>
-            
-            <div class="grid md:grid-cols-3 gap-6">
-                <div class="feature-card p-6 rounded-2xl">
-                    <div class="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center text-green-400 mb-4">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                    </div>
-                    <h3 class="font-semibold text-lg mb-2">Legally Binding</h3>
-                    <p class="text-gray-400 text-sm">Electronic signatures with consent. Agreements recognized by PROs and labels.</p>
-                </div>
-                
-                <div class="feature-card p-6 rounded-2xl">
-                    <div class="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400 mb-4">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                    </div>
-                    <h3 class="font-semibold text-lg mb-2">Immutable Records</h3>
-                    <p class="text-gray-400 text-sm">Once signed, agreements are locked forever. SHA-256 verification. No tampering.</p>
-                </div>
-                
-                <div class="feature-card p-6 rounded-2xl">
-                    <div class="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400 mb-4">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    </div>
-                    <h3 class="font-semibold text-lg mb-2">Master + Publishing</h3>
-                    <p class="text-gray-400 text-sm">Define both rights clearly. No confusion about what type of ownership each person holds.</p>
-                </div>
-                
-                <div class="feature-card p-6 rounded-2xl">
-                    <div class="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center text-yellow-400 mb-4">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                    </div>
-                    <h3 class="font-semibold text-lg mb-2">Contributor Roles</h3>
-                    <p class="text-gray-400 text-sm">Artist, Producer, Writer, Engineer, Featured. Everyone's contribution documented.</p>
-                </div>
-                
-                <div class="feature-card p-6 rounded-2xl">
-                    <div class="w-10 h-10 rounded-xl bg-pink-500/20 flex items-center justify-center text-pink-400 mb-4">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
-                    </div>
-                    <h3 class="font-semibold text-lg mb-2">QR Code Sharing</h3>
-                    <p class="text-gray-400 text-sm">No app required to join. Scan QR code or click link. Anyone can participate.</p>
-                </div>
-                
-                <div class="feature-card p-6 rounded-2xl">
-                    <div class="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center text-cyan-400 mb-4">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    </div>
-                    <h3 class="font-semibold text-lg mb-2">PDF Agreements</h3>
-                    <p class="text-gray-400 text-sm">Download professionally formatted PDF agreements. Signatures, hashes, timestamps included.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Legal Section -->
-    <section id="legal" class="py-24 bg-black border-t border-white/5">
+    <!-- Security Section -->
+    <section id="security" class="py-32 relative border-t border-white/5">
         <div class="max-w-4xl mx-auto px-6 text-center">
-            <h2 class="text-4xl font-bold mb-6">Built for Legal Defensibility</h2>
-            <p class="text-gray-400 text-lg mb-12">
-                Every agreement includes audit trails, electronic signature consent, 
+            <h2 class="text-4xl md:text-5xl font-bold mb-6">Built for Legal Defensibility</h2>
+            <p class="text-gray-400 text-lg mb-16 max-w-2xl mx-auto">
+                Every agreement includes comprehensive audit trails, electronic signature consent, 
                 and cryptographic verification.
             </p>
             
-            <div class="grid md:grid-cols-3 gap-8 text-left">
-                <div>
-                    <h4 class="font-semibold mb-2 text-green-400">ESIGN Compliant</h4>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="glass p-8 rounded-3xl">
+                    <div class="text-3xl mb-4">⚖️</div>
+                    <h4 class="font-bold text-lg mb-2 text-green-400">ESIGN Compliant</h4>
                     <p class="text-gray-400 text-sm">Meets US Electronic Signatures in Global and National Commerce Act requirements.</p>
                 </div>
-                <div>
-                    <h4 class="font-semibold mb-2 text-blue-400">Audit Trail</h4>
-                    <p class="text-gray-400 text-sm">Complete history of every action. Who did what, when, from where.</p>
+                <div class="glass p-8 rounded-3xl">
+                    <div class="text-3xl mb-4">📋</div>
+                    <h4 class="font-bold text-lg mb-2 text-blue-400">Complete Audit Trail</h4>
+                    <p class="text-gray-400 text-sm">Every action logged with timestamp, identity, and IP address. Full history preserved.</p>
                 </div>
-                <div>
-                    <h4 class="font-semibold mb-2 text-purple-400">Verification</h4>
-                    <p class="text-gray-400 text-sm">SHA-256 document hashes. Publicly verifiable without exposing private data.</p>
+                <div class="glass p-8 rounded-3xl">
+                    <div class="text-3xl mb-4">🔐</div>
+                    <h4 class="font-bold text-lg mb-2 text-purple-400">SHA-256 Verification</h4>
+                    <p class="text-gray-400 text-sm">Cryptographic document hashes. Publicly verifiable without exposing private data.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- CTA Section -->
-    <section class="py-24 hero-gradient">
-        <div class="max-w-4xl mx-auto px-6 text-center">
-            <h2 class="text-4xl md:text-5xl font-bold mb-6">Start Protecting Your Music Today</h2>
-            <p class="text-gray-400 text-lg mb-8 max-w-2xl mx-auto">
+    <section class="py-32 relative overflow-hidden">
+        <div class="glow top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-30"></div>
+        
+        <div class="relative z-10 max-w-4xl mx-auto px-6 text-center">
+            <h2 class="text-4xl md:text-6xl font-black mb-8 tracking-tight">
+                Protect Your Music.<br>
+                <span class="gradient-text">Start Today.</span>
+            </h2>
+            <p class="text-gray-400 text-lg mb-10 max-w-2xl mx-auto">
                 Free during beta. No credit card required. Create your first ownership agreement in under 2 minutes.
             </p>
-            <a href="https://app-kappa-nine-45.vercel.app" class="btn-primary px-10 py-4 rounded-full text-lg inline-flex items-center gap-2">
+            <a href="https://app.songsplit.org" class="btn-primary px-12 py-5 rounded-full text-xl inline-flex items-center gap-3 font-bold">
                 Launch SongSplit
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
             </a>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="py-12 bg-black border-t border-white/5">
+    <footer class="py-12 border-t border-white/5">
         <div class="max-w-7xl mx-auto px-6">
             <div class="flex flex-col md:flex-row justify-between items-center gap-6">
                 <div class="flex items-center gap-2">
                     <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center font-bold text-black text-sm">S</div>
                     <span class="font-bold text-lg">SongSplit</span>
                 </div>
-                <div class="flex gap-6 text-sm text-gray-400">
-                    <a href="https://app-kappa-nine-45.vercel.app" class="hover:text-white transition">Open App</a>
+                <div class="flex gap-8 text-sm text-gray-500">
+                    <a href="https://app.songsplit.org" class="hover:text-white transition">Open App</a>
                     <a href="mailto:hello@songsplit.org" class="hover:text-white transition">Contact</a>
-                    <a href="https://github.com/ElisonInc/splitsheet-app" class="hover:text-white transition">GitHub</a>
+                    <a href="https://github.com/ElisonInc/songsplit-app" class="hover:text-white transition">GitHub</a>
                 </div>
-                <p class="text-sm text-gray-500">© 2026 SongSplit. All rights reserved.</p>
+                <p class="text-sm text-gray-600">© 2026 SongSplit. All rights reserved.</p>
             </div>
         </div>
     </footer>
-    <!-- Mobile Detection Script -->
+
+    <!-- Scripts -->
     <script>
-        // Detect mobile devices
+        // Mobile detection
         function isMobile() {
             return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         }
         
-        // Show mobile banner on mobile devices
         if (isMobile()) {
             const banner = document.getElementById('mobileBanner');
-            const nav = document.querySelector('nav');
+            const nav = document.getElementById('navbar');
             if (banner) {
-                banner.classList.remove('hidden');
-                // Adjust nav position to account for banner
-                if (nav) {
-                    nav.style.top = '76px';
-                }
-                // Adjust hero section
-                const hero = document.querySelector('.hero-gradient');
-                if (hero) {
-                    hero.style.paddingTop = '120px';
-                }
+                banner.classList.add('show');
+                if (nav) nav.style.top = '76px';
             }
         }
+        
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                nav.classList.add('glass');
+            } else {
+                nav.classList.remove('glass');
+            }
+        });
     </script>
 </body>
 </html>
