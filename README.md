@@ -1,97 +1,84 @@
 # SongSplit
 
-Real-time music ownership agreements. Define who owns what at the moment of creation.
+**SongSplit** is a music-tech product for documenting ownership splits at the moment songs are created.
+
+The project explores a simple problem: collaborators often finish a session without clearly recording who owns what. SongSplit is designed to make that conversation structured, immediate, and easier to preserve.
 
 **Website:** https://songsplit.org  
-**App:** https://app.songsplit.org (or /app on the same domain)
+**App:** https://app.songsplit.org
 
----
+## Product Goal
 
-## Project Structure
+SongSplit provides a shared workflow for contributors to define master and publishing splits, capture agreement, and preserve a verifiable record of the session.
 
-```
-/
-├── index.html          # Landing page (songsplit.org)
-├── app/                # Application (app.songsplit.org)
-│   ├── index.html      # Main app
-│   ├── js/             # Config & logic
-│   ├── icons/          # PWA icons
-│   ├── manifest.json   # PWA manifest
-│   └── sw.js           # Service worker
-├── supabase/
-│   └── schema.sql      # Database schema
-└── vercel.json         # Deployment config
-```
+It is designed as a coordination and documentation tool for collaborators. It is **not a substitute for legal advice or a guarantee that a particular agreement will be enforceable in every jurisdiction**.
 
----
+## Core Product Areas
 
-## Features
+- **Real-time split coordination** — Contributors can define ownership percentages together
+- **Master + publishing splits** — Separate ownership categories for clearer documentation
+- **Electronic agreement flow** — Consent and signature capture within the product workflow
+- **Record integrity** — SHA-256 based verification to help detect document changes
+- **PDF exports** — Downloadable agreement records
+- **Mobile-friendly PWA** — Installable experience for iOS and Android
+- **Access controls** — Supabase authentication and Row Level Security
 
-- ⚡ **Real-Time Agreements** — All contributors define ownership simultaneously
-- ✓ **Legally Binding** — Electronic signatures with consent
-- 🔒 **Immutable Records** — SHA-256 verification, tamper-proof
-- 📱 **PWA** — Install on iOS/Android
-- 🎵 **Master + Publishing** — Define both rights clearly
-- 📄 **PDF Agreements** — Professional, downloadable contracts
-- 🔐 **Secure** — Row Level Security, strict access controls
+## Tech Stack
 
----
-
-## Technology Stack
-
-- **Frontend:** Vanilla HTML/JS, Tailwind CSS
-- **Backend:** Supabase (PostgreSQL + Auth + Realtime)
+- **Frontend:** HTML / JavaScript + Tailwind CSS
+- **Backend:** Supabase (PostgreSQL, Auth, Realtime)
 - **PDF:** jsPDF
 - **QR Codes:** QRCode.js
 - **Hosting:** Vercel
 
----
+## Project Structure
 
-## Development
+```text
+/
+├── index.html          # Public landing page
+├── app/                # SongSplit application
+│   ├── index.html
+│   ├── js/
+│   ├── icons/
+│   ├── manifest.json
+│   └── sw.js
+├── supabase/
+│   └── schema.sql
+└── vercel.json
+```
+
+## Local Development
 
 ```bash
-# Clone the repo
-git clone https://github.com/ElisonInc/splitsheet-app.git
-cd splitsheet-app
-
-# Run locally
+git clone https://github.com/ElisonInc/songsplit-app.git
+cd songsplit-app
 python3 -m http.server 8000
-
-# Open http://localhost:8000 for landing page
-# Open http://localhost:8000/app for the app
 ```
 
----
+Then open:
 
-## Deployment
-
-### Vercel (Recommended)
-
-```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Deploy
-vercel --prod
-```
-
-### Custom Domains
-
-1. **Landing page:** `songsplit.org` → Vercel project
-2. **App:** `app.songsplit.org` → Same Vercel project (handles /app routing)
-
-Or use Vercel's subdomain feature for separate app deployment.
-
----
+- `http://localhost:8000` for the landing page
+- `http://localhost:8000/app` for the application
 
 ## Database Setup
 
-1. Create Supabase project
-2. Run `supabase/schema.sql` in SQL Editor
-3. Add your URL and anon key to `app/js/config.js`
+1. Create a Supabase project.
+2. Run `supabase/schema.sql` in the Supabase SQL Editor.
+3. Configure the application with the Supabase URL and anon key in `app/js/config.js`.
 
----
+## Deployment
+
+The project is designed for Vercel deployment with the public site and application served from the same codebase.
+
+```bash
+npm i -g vercel
+vercel --prod
+```
+
+## Portfolio Context
+
+SongSplit is part of the **ELISON INC** product portfolio and represents work at the intersection of music, product design, real-time collaboration, data integrity, and digital workflow systems.
 
 ## License
 
-MIT License - Copyright (c) 2026 SongSplit
+MIT License — Copyright © 2026 SongSplit.
