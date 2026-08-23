@@ -1,11 +1,20 @@
 # SongSplit
 
+[![Security Boundary](https://github.com/ElisonInc/songsplit-app/actions/workflows/security-boundary.yml/badge.svg)](https://github.com/ElisonInc/songsplit-app/actions/workflows/security-boundary.yml)
+
 **SongSplit** is a music-tech product for documenting ownership splits at the moment songs are created.
 
 The project explores a simple but expensive coordination problem: collaborators often finish a session without clearly recording who owns what. SongSplit is designed to make that conversation structured, immediate, and easier to preserve.
 
 **Website:** https://songsplit.org  
 **App:** https://app.songsplit.org
+
+## Start here
+
+- **[Live product](https://songsplit.org)** — public product surface
+- **[Production security migration](./supabase/migrations/20260823225943_harden_songsplit_rls_and_api_surface_v2.sql)** — hardened grants, RLS boundaries, service-only operations, and security-invoker view behavior
+- **[Database security notes](./supabase/README.md)** — which schema artifacts are historical vs. production-aligned
+- **[Security Boundary CI](./.github/workflows/security-boundary.yml)** — regression checks against reintroducing broad anonymous access
 
 ## Product goal
 
