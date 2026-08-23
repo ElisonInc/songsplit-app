@@ -1,6 +1,17 @@
 {
   "rewrites": [
     {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "header",
+          "key": "host",
+          "value": "app.songsplit.org"
+        }
+      ],
+      "destination": "/app/:path*"
+    },
+    {
       "source": "/app/(.*)",
       "destination": "/app/$1"
     },
