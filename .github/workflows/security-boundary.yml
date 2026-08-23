@@ -1,0 +1,35 @@
+name: Security Boundary
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify-public-boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify hardened session auth guard
+        run: |
+          grep -q "REQUIRE_AUTH_FOR_SESSION_ACTIONS: true" app/js/config.js
+          grep -q "protect('createSession'" app/js/config.js
+          grep -q "protect('joinSession'" app/js/config.js
+
+      - name: Verify hardening migration is present
+        run: |
+          test -f supabase/migrations/20260823225943_harden_songsplit_rls_and_api_surface_v2.sql
+          grep -q "revoke all privileges on table public.sessions from anon" supabase/migrations/20260823225943_harden_songsplit_rls_and_api_surface_v2.sql
+          grep -q "security_invoker = true" supabase/migrations/20260823225943_harden_songsplit_rls_and_api_surface_v2.sql
+
+      - name: Reject new anonymous allow-all policies in migrations
+        run: |
+          if grep -RniE 'create policy.*(allow all|viewable by everyone|readable by everyone)' supabase/migrations; then
+            echo "Potentially permissive policy found in migrations"
+            exit 1
+          fi
