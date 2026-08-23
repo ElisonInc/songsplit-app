@@ -6,7 +6,7 @@ const SUPABASE_CONFIG = {
     URL: 'https://lbdauutduonffyaxuime.supabase.co',
     
     // Your Supabase anon/public key
-    ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxiZGF1dWR1b25mZnlheHVpbWUiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc3MTI4ODQzOSwiZXhwIjoyMDg2ODY0NDM5fQ.JFVjJTNfOPwqOsiBD6JHLoXkdC9Cec2Hki6gU-Kdwrw',
+    ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxiZGF1dXRkdW9uZmZ5YXh1aW1lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyODg0MzksImV4cCI6MjA4Njg2NDQzOX0.JFVjJTNfOPwqOsiBD6JHLoXkdC9Cec2Hki6gU-Kdwrw',
     
     // Optional: Enable debug logging
     DEBUG: false
