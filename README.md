@@ -21,7 +21,22 @@ It is designed as a coordination and documentation tool for collaborators. It is
 - **Record integrity** — SHA-256 based verification to help detect document changes
 - **PDF exports** — Downloadable agreement records
 - **Mobile-friendly PWA** — Installable experience for iOS and Android
-- **Access controls** — Supabase authentication and Row Level Security
+- **Access controls** — Supabase authentication, explicit grants, and Row Level Security
+
+## Security / access model
+
+Session data is private by default. Creating, joining, or resuming a session requires an authenticated Supabase user in the current hardened model.
+
+Database access uses two layers:
+
+1. **Postgres grants** decide whether `anon`, `authenticated`, or `service_role` can reach a table/function at all.
+2. **Row Level Security** then restricts authenticated users to sessions they create or participate in.
+
+Sensitive tables such as profiles, contributors, collaborators, sessions, and the outbound email queue are not anonymously readable. The email queue is service-side only. The `session_summary` view runs with `security_invoker` so it respects the caller's RLS context.
+
+The production hardening migration is recorded at:
+
+`supabase/migrations/20260823225943_harden_songsplit_rls_and_api_surface_v2.sql`
 
 ## Tech stack
 
@@ -45,6 +60,9 @@ SongSplit is meant to be usable during or immediately after a studio session, so
 ### Use realtime state for collaboration
 Supabase Realtime supports a shared split workflow where multiple contributors can work against the same session record instead of passing screenshots or disconnected documents around.
 
+### Treat authorization as part of the product architecture
+The current model requires sign-in before session actions, keeps sessions private by default, separates service-side email operations from client permissions, and scopes reads/writes to ownership or participation instead of relying on broad public policies.
+
 ## Project structure
 
 ```text
@@ -57,7 +75,9 @@ Supabase Realtime supports a shared split workflow where multiple contributors c
 │   ├── manifest.json
 │   └── sw.js
 ├── supabase/
-│   └── schema.sql
+│   ├── schema.sql      # Historical/bootstrap schema reference
+│   ├── README.md       # Database security notes
+│   └── migrations/     # Production-aligned schema/security changes
 └── vercel.json
 ```
 
@@ -82,9 +102,9 @@ Then open:
 
 ## Database setup
 
-1. Create a Supabase project.
-2. Run `supabase/schema.sql` in the Supabase SQL Editor.
-3. Configure the application with the Supabase URL and anon key in `app/js/config.js`.
+For a fresh environment, treat `supabase/schema.sql` as the historical/bootstrap reference and then apply the migrations in `supabase/migrations/` in order. The hardened authorization migration must be present before exposing the Data API to real users.
+
+Configure the frontend with the Supabase URL and publishable/anon key in `app/js/config.js`. The publishable key is not the authorization boundary; database grants and RLS are.
 
 ## Deployment
 
