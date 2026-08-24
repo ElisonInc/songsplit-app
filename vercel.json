@@ -1,4 +1,7 @@
 {
+  "alias": [
+    "app.songsplit.org"
+  ],
   "rewrites": [
     {
       "source": "/",
