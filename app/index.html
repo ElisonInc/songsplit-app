@@ -6,14 +6,14 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <meta name="description" content="Real-time music ownership agreements. Define who owns what at the moment of creation.">
+    <meta name="description" content="Real-time music ownership documentation. Capture who owns what at the moment of creation.">
     
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-72x72.png">
     
-    <title>SongSplit | Music Ownership Agreements</title>
+    <title>SongSplit | Music Ownership Documentation</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -183,7 +183,7 @@
                     Lock in <span class="gradient-text">ownership</span> before the session ends.
                 </h1>
                 <p class="text-gray-400 text-base leading-relaxed mb-6">
-                    Create real-time music ownership agreements. Define Master & Publishing rights while the vibe is fresh.
+                    Document music ownership decisions in real time. Define Master & Publishing rights while the session is fresh.
                 </p>
                 
                 <!-- Auth CTA for non-logged in users -->
@@ -197,14 +197,14 @@
                         <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-lg">⚡</div>
                         <div>
                             <h3 class="font-semibold mb-1 text-sm">Real-Time Agreements</h3>
-                            <p class="text-xs text-gray-400">All contributors define ownership while creating. No disputes later.</p>
+                            <p class="text-xs text-gray-400">All contributors define ownership while creating. A clearer record for later.</p>
                         </div>
                     </div>
                     <div class="flex items-start gap-3 p-4 rounded-2xl bg-white/5">
                         <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-lg">✓</div>
                         <div>
-                            <h3 class="font-semibold mb-1 text-sm">Legally Binding</h3>
-                            <p class="text-xs text-gray-400">Digital signatures + PDF agreements recognized by PROs & labels.</p>
+                            <h3 class="font-semibold mb-1 text-sm">Agreement Capture</h3>
+                            <p class="text-xs text-gray-400">Digital signatures + PDF records for documented collaboration.</p>
                         </div>
                     </div>
                     <div class="flex items-start gap-3 p-4 rounded-2xl bg-white/5">
@@ -447,7 +447,7 @@
                         <input type="checkbox" id="signatureConsent" class="mt-1 w-5 h-5 rounded border-gray-600 bg-gray-800 text-green-500 focus:ring-green-500">
                         <div class="text-sm">
                             <p class="font-medium text-yellow-400 mb-1">Electronic Signature Consent</p>
-                            <p class="text-gray-300">I agree that my electronic signature is legally binding and carries the same weight as a handwritten signature. I understand this agreement will be used for PRO registration, royalty distributions, and licensing.</p>
+                            <p class="text-gray-300">I consent to use my electronic signature to record my approval of the ownership terms shown in this session. I understand SongSplit records this approval but does not provide legal advice or guarantee enforceability or acceptance by any PRO, label, publisher, court, or other third party.</p>
                         </div>
                     </label>
                 </div>
@@ -898,7 +898,7 @@
                     id: sessionId,
                     song_title: '',
                     created_by: this.data.currentUser?.id || null,
-                    is_public: true
+                    is_public: false
                 };
 
                 const { data: session, error } = await supabaseClient
@@ -1716,11 +1716,11 @@
                 // Header
                 doc.setFontSize(20);
                 doc.setTextColor(0, 0, 0);
-                doc.text("MUSIC OWNERSHIP AGREEMENT", pageWidth/2, 20, { align: 'center' });
+                doc.text("MUSIC OWNERSHIP RECORD", pageWidth/2, 20, { align: 'center' });
 
                 doc.setFontSize(10);
                 doc.setTextColor(100, 100, 100);
-                doc.text("SongSplit | Music Ownership Agreements", pageWidth/2, 28, { align: 'center' });
+                doc.text("SongSplit | Music Ownership Documentation", pageWidth/2, 28, { align: 'center' });
 
                 // Song Info
                 doc.setFontSize(12);
@@ -1758,7 +1758,7 @@
                 y += 10;
                 doc.setFontSize(9);
                 doc.setTextColor(60, 60, 60);
-                const agreementText = `The undersigned contributors agree that the above splits represent the fair division of ownership rights for the song "${this.data.songTitle || '[Untitled]'}". This includes both Master Recording rights and Publishing rights as indicated. These percentages shall be used for all royalty distributions, PRO registrations, and any licensing agreements. This agreement is binding and enforceable.`;
+                const agreementText = `The contributors listed above recorded the ownership splits shown for the song "${this.data.songTitle || '[Untitled]'}". Master Recording and Publishing rights are documented separately as indicated. This record reflects the terms entered and approved in SongSplit at finalization. SongSplit does not provide legal advice or guarantee enforceability, PRO registration, royalty treatment, licensing acceptance, or third-party recognition.`;
                 doc.text(agreementText, 20, y, { maxWidth: pageWidth-40, align: 'justify' });
 
                 // Signature Section
@@ -1791,8 +1791,8 @@
                 doc.setFontSize(8);
                 doc.setTextColor(150, 150, 150);
                 doc.text(`Document Hash: ${hash}`, pageWidth/2, 280, { align: 'center' });
-                doc.text("This document serves as a binding music ownership agreement.", pageWidth/2, 285, { align: 'center' });
-                doc.text("Verify at: splitsheet.app/verify", pageWidth/2, 290, { align: 'center' });
+                doc.text("This document records the ownership terms entered and approved in SongSplit.", pageWidth/2, 285, { align: 'center' });
+                doc.text("Generated by SongSplit • songsplit.org", pageWidth/2, 290, { align: 'center' });
 
                 doc.save(`OwnershipAgreement_${this.data.songTitle || 'Song'}_${this.data.sessionId}.pdf`);
             },
