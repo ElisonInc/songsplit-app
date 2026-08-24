@@ -1,8 +1,9 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "alias": [
     "app.songsplit.org"
   ],
-  "rewrites": [
+  "redirects": [
     {
       "source": "/",
       "has": [
@@ -11,18 +12,11 @@
           "value": "app.songsplit.org"
         }
       ],
-      "destination": "/app/index.html"
-    },
-    {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "app.songsplit.org"
-        }
-      ],
-      "destination": "/app/:path*"
-    },
+      "destination": "/app",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
     {
       "source": "/app",
       "destination": "/app/index.html"
