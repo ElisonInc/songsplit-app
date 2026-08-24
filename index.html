@@ -6,6 +6,11 @@
     <meta name="description" content="SongSplit helps music collaborators document master and publishing ownership while a session is still fresh.">
     <meta name="theme-color" content="#0a0a0a">
     <title>SongSplit | Music Ownership Documentation</title>
+    <script>
+      if (window.location.hostname === 'app.songsplit.org' && (window.location.pathname === '/' || window.location.pathname === '')) {
+        window.location.replace('/app');
+      }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
