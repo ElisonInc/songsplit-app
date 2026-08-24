@@ -1,32 +1,41 @@
 {
   "rewrites": [
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "app.songsplit.org"
+        }
+      ],
+      "destination": "/app/index.html"
+    },
+    {
       "source": "/:path*",
       "has": [
         {
-          "type": "header",
-          "key": "host",
+          "type": "host",
           "value": "app.songsplit.org"
         }
       ],
       "destination": "/app/:path*"
     },
     {
-      "source": "/app/(.*)",
-      "destination": "/app/$1"
-    },
-    {
       "source": "/app",
       "destination": "/app/index.html"
     },
     {
-      "source": "/(.*)",
+      "source": "/app/:path*",
+      "destination": "/app/:path*"
+    },
+    {
+      "source": "/:path*",
       "destination": "/index.html"
     }
   ],
   "headers": [
     {
-      "source": "/app/icons/(.*)",
+      "source": "/app/icons/:path*",
       "headers": [
         {
           "key": "Cache-Control",
@@ -35,7 +44,7 @@
       ]
     },
     {
-      "source": "/(.*)",
+      "source": "/:path*",
       "headers": [
         {
           "key": "X-Frame-Options",
