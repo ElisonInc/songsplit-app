@@ -3,7 +3,7 @@
   "alias": [
     "app.songsplit.org"
   ],
-  "redirects": [
+  "rewrites": [
     {
       "source": "/",
       "has": [
@@ -12,11 +12,18 @@
           "value": "app.songsplit.org"
         }
       ],
-      "destination": "/app",
-      "permanent": false
-    }
-  ],
-  "rewrites": [
+      "destination": "/app/index.html"
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "app.songsplit.org"
+        }
+      ],
+      "destination": "/app/:path*"
+    },
     {
       "source": "/app",
       "destination": "/app/index.html"
