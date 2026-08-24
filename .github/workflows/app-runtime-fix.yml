@@ -1,0 +1,64 @@
+name: One-time SongSplit runtime fix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/app-runtime-fix.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fix finalize handler and connection-status null guard
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('app/index.html')
+          text = path.read_text()
+
+          old_finalize = 'onclick="app.finalizeSheet()"'
+          new_finalize = 'onclick="app.finalizeAgreement()"'
+          if old_finalize not in text:
+              raise SystemExit('Expected legacy finalize handler was not found')
+          text = text.replace(old_finalize, new_finalize, 1)
+
+          old_status = """                if (isLive) {
+                    indicator.classList.remove('offline');
+                    text.textContent = 'Live';
+                } else {
+                    indicator.classList.add('offline');
+                    text.textContent = 'Offline';
+                }"""
+          new_status = """                if (isLive) {
+                    indicator.classList.remove('offline');
+                    if (text) text.textContent = 'Live';
+                } else {
+                    indicator.classList.add('offline');
+                    if (text) text.textContent = 'Offline';
+                }"""
+          if old_status not in text:
+              raise SystemExit('Expected connection-status block was not found')
+          text = text.replace(old_status, new_status, 1)
+
+          if 'app.finalizeSheet()' in text:
+              raise SystemExit('Legacy finalize handler still present')
+
+          path.write_text(text)
+          PY
+
+      - name: Commit runtime fixes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/index.html
+          git commit -m "fix: repair SongSplit finalize action and status guard"
+          git push
