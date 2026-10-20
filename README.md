@@ -6,6 +6,14 @@
 
 The project explores a simple but expensive coordination problem: collaborators often finish a session without clearly recording who owns what. SongSplit is designed to make that conversation structured, immediate, and easier to preserve.
 
+## Free for artists, open to the community
+
+SongSplit is **free to use** and **open source under AGPL-3.0**. Artists lose real royalties every year to undocumented splits, and the fix shouldn't cost money. The code is public so musicians, producers, engineers, and developers can inspect how their agreements are stored, improve the product, and self-host it if they want to.
+
+- Use the app free at [songsplit.org](https://songsplit.org) — no tiers, no paywall
+- Contribute: see [CONTRIBUTING.md](./CONTRIBUTING.md) — issues, fixes, and features welcome
+- The AGPL-3.0 license means every public fork and hosted derivative stays open too, so the community's work can't be closed off and sold back to artists
+
 **Website:** https://songsplit.org  
 **App:** https://app.songsplit.org
 
@@ -136,4 +144,6 @@ SongSplit is part of the **ELISON INC** product portfolio and represents work at
 
 ## License
 
-MIT License — Copyright © 2026 SongSplit.
+[GNU AGPL-3.0](./LICENSE) — Copyright © 2026 ELISON INC.
+
+Free to use, study, modify, self-host, and redistribute. If you run a modified version as a public service, the AGPL requires you to share your modifications — that keeps SongSplit and everything built on it open for the artists it protects.
