@@ -1,4 +1,4 @@
-const CACHE_NAME = 'splitsheet-v1';
+const CACHE_NAME = 'songsplit-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -7,13 +7,28 @@ const STATIC_ASSETS = [
   '/icons/icon-512x512.png'
 ];
 
-// Install event - cache static assets
+// Install event - cache static assets individually so one bad response can't
+// poison the cache (the hosting catch-all rewrite returns HTML with HTTP 200
+// for missing paths, which cache.addAll would happily store as an "icon").
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('Caching static assets');
-        return cache.addAll(STATIC_ASSETS);
+      .then((cache) =>
+        Promise.allSettled(
+          STATIC_ASSETS.map(async (url) => {
+            const response = await fetch(url);
+            const type = response.headers.get('content-type') || '';
+            if (!response.ok || (url.endsWith('.png') && !type.startsWith('image/'))) {
+              throw new Error(`Skipping ${url}: ${response.status} ${type}`);
+            }
+            return cache.put(url, response);
+          })
+        )
+      )
+      .then((results) => {
+        results.forEach((r) => {
+          if (r.status === 'rejected') console.warn('Precache skip:', r.reason?.message || r.reason);
+        });
       })
       .catch((err) => {
         console.error('Cache install failed:', err);

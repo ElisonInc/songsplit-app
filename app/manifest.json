@@ -58,20 +58,10 @@
       "purpose": "maskable any"
     }
   ],
-  "categories": ["productivity", "business", "music"],
-  "screenshots": [
-    {
-      "src": "/app/screenshots/mobile-home.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "form_factor": "narrow"
-    },
-    {
-      "src": "/app/screenshots/mobile-session.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "form_factor": "narrow"
-    }
+  "categories": [
+    "productivity",
+    "business",
+    "music"
   ],
   "shortcuts": [
     {
@@ -79,7 +69,12 @@
       "short_name": "New Sheet",
       "description": "Create a new split sheet agreement",
       "url": "/app?action=new",
-      "icons": [{ "src": "/app/icons/icon-192x192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/app/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }
