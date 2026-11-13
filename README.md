@@ -1,149 +1,136 @@
 # SongSplit
 
 [![Security Boundary](https://github.com/ElisonInc/songsplit-app/actions/workflows/security-boundary.yml/badge.svg)](https://github.com/ElisonInc/songsplit-app/actions/workflows/security-boundary.yml)
+[![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](./LICENSE)
 
-**SongSplit** is a music-tech product for documenting ownership splits at the moment songs are created.
+**SongSplit** is a free, open-source, mobile-first web app for documenting song ownership splits at the moment songs are created. Collaborators define master and publishing splits together, capture agreement, and keep a verifiable record of the session.
 
-The project explores a simple but expensive coordination problem: collaborators often finish a session without clearly recording who owns what. SongSplit is designed to make that conversation structured, immediate, and easier to preserve.
+- **Website:** https://songsplit.org
+- **App:** https://app.songsplit.org
+
+> SongSplit is a coordination and documentation tool. It is **not legal advice** and does not guarantee that an agreement is enforceable in every jurisdiction.
+
+## Ownership and status
+
+- **Owner:** ELISON INC. (SongSplit is an Elison Inc. product)
+- **Status:** Active. Last code change was on 2026-10-20 (PWA icons and service worker caching fixes), shortly after the project was open-sourced under AGPL-3.0.
 
 ## Free for artists, open to the community
 
-SongSplit is **free to use** and **open source under AGPL-3.0**. Artists lose real royalties every year to undocumented splits, and the fix shouldn't cost money. The code is public so musicians, producers, engineers, and developers can inspect how their agreements are stored, improve the product, and self-host it if they want to.
+SongSplit is **free to use**: no tiers, no paywall. The code is public so musicians, producers, engineers and developers can see how their agreements are stored, improve the product, and self-host it. Under AGPL-3.0, public forks and hosted derivatives must stay open too.
 
-- Use the app free at [songsplit.org](https://songsplit.org) — no tiers, no paywall
-- Contribute: see [CONTRIBUTING.md](./CONTRIBUTING.md) — issues, fixes, and features welcome
-- The AGPL-3.0 license means every public fork and hosted derivative stays open too, so the community's work can't be closed off and sold back to artists
+Contributions are welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md), which also explains how to report security issues privately.
 
-**Website:** https://songsplit.org  
-**App:** https://app.songsplit.org
+## Features
 
-## Start here
+- **Real-time split coordination**: contributors edit one shared session (Supabase Realtime)
+- **Master and publishing splits**: tracked as separate ownership categories
+- **Electronic agreement flow**: consent and signature capture inside the app
+- **Record integrity**: SHA-256 hashes help detect changes to a document
+- **PDF export**: downloadable agreement records (jsPDF)
+- **QR codes**: for sharing and joining sessions (QRCode.js)
+- **Installable PWA**: manifest, icons and a service worker for iOS and Android
+- **Access control**: Supabase Auth, explicit Postgres grants and Row Level Security
 
-- **[Live product](https://songsplit.org)** — public product surface
-- **[Production security migration](./supabase/migrations/20260823225943_harden_songsplit_rls_and_api_surface_v2.sql)** — hardened grants, RLS boundaries, service-only operations, and security-invoker view behavior
-- **[Database security notes](./supabase/README.md)** — which schema artifacts are historical vs. production-aligned
-- **[Security Boundary CI](./.github/workflows/security-boundary.yml)** — regression checks against reintroducing broad anonymous access
+## Security model
 
-## Product goal
+Sessions are private by default. You must be signed in with Supabase to create, join or resume a session.
 
-SongSplit provides a shared workflow for contributors to define master and publishing splits, capture agreement, and preserve a verifiable record of the session.
+1. **Postgres grants** decide whether `anon`, `authenticated` or `service_role` can reach a table or function at all.
+2. **Row Level Security** limits signed-in users to sessions they created or take part in.
 
-It is designed as a coordination and documentation tool for collaborators. It is **not a substitute for legal advice or a guarantee that a particular agreement will be enforceable in every jurisdiction**.
+The outbound email queue can only be used server-side. The `session_summary` view runs with `security_invoker`, so it follows the caller's RLS rules. The Supabase publishable/anon key in `app/js/config.js` is public by design. Grants and RLS are what actually control access.
 
-## Core product areas
+The authoritative record of this model is [`supabase/migrations/20260823225943_harden_songsplit_rls_and_api_surface_v2.sql`](./supabase/migrations/20260823225943_harden_songsplit_rls_and_api_surface_v2.sql). See [`supabase/README.md`](./supabase/README.md) for details.
 
-- **Real-time split coordination** — Contributors can define ownership percentages together
-- **Master + publishing splits** — Separate ownership categories for clearer documentation
-- **Electronic agreement flow** — Consent and signature capture within the product workflow
-- **Record integrity** — SHA-256 based verification to help detect document changes
-- **PDF exports** — Downloadable agreement records
-- **Mobile-friendly PWA** — Installable experience for iOS and Android
-- **Access controls** — Supabase authentication, explicit grants, and Row Level Security
+**Security Boundary CI** ([workflow](./.github/workflows/security-boundary.yml)) runs on every push and pull request to `main`. It checks that:
 
-## Security / access model
-
-Session data is private by default. Creating, joining, or resuming a session requires an authenticated Supabase user in the current hardened model.
-
-Database access uses two layers:
-
-1. **Postgres grants** decide whether `anon`, `authenticated`, or `service_role` can reach a table/function at all.
-2. **Row Level Security** then restricts authenticated users to sessions they create or participate in.
-
-Sensitive tables such as profiles, contributors, collaborators, sessions, and the outbound email queue are not anonymously readable. The email queue is service-side only. The `session_summary` view runs with `security_invoker` so it respects the caller's RLS context.
-
-The production hardening migration is recorded at:
-
-`supabase/migrations/20260823225943_harden_songsplit_rls_and_api_surface_v2.sql`
+- the sign-in guard for session actions is still on in `app/js/config.js`
+- the hardening migration is present and still revokes anonymous access
+- no new allow-all style policies have been added to the migrations
 
 ## Tech stack
 
-- **Frontend:** HTML / JavaScript + Tailwind CSS
+- **Frontend:** static HTML and JavaScript, with Tailwind CSS from its CDN. There is no build step.
+- **Libraries (loaded from CDNs):** `@supabase/supabase-js` 2.39.0, jsPDF 2.5.1, QRCode.js 1.0.0
 - **Backend:** Supabase (PostgreSQL, Auth, Realtime)
-- **PDF:** jsPDF
-- **QR Codes:** QRCode.js
 - **Hosting:** Vercel
-
-## Product / engineering decisions
-
-### Separate master and publishing ownership
-The workflow treats these as different ownership categories rather than collapsing every percentage into one field. That makes the product model closer to the real collaboration problem.
-
-### Preserve evidence of what was agreed
-The system uses agreement records, signature/consent capture, PDF exports, and SHA-256 verification to help make changes detectable after a session record is created.
-
-### Optimize for the room, not the desktop
-SongSplit is meant to be usable during or immediately after a studio session, so the product is intentionally mobile-first and installable as a PWA.
-
-### Use realtime state for collaboration
-Supabase Realtime supports a shared split workflow where multiple contributors can work against the same session record instead of passing screenshots or disconnected documents around.
-
-### Treat authorization as part of the product architecture
-The current model requires sign-in before session actions, keeps sessions private by default, separates service-side email operations from client permissions, and scopes reads/writes to ownership or participation instead of relying on broad public policies.
 
 ## Project structure
 
 ```text
 /
-├── index.html          # Public landing page
-├── app/                # SongSplit application
-│   ├── index.html
-│   ├── js/
-│   ├── icons/
-│   ├── manifest.json
-│   └── sw.js
+├── index.html            # Public landing page (songsplit.org)
+├── og-image.png          # Open Graph / Twitter card image
+├── vercel.json           # Rewrites (incl. app.songsplit.org host routing) and security headers
+├── app/                  # The SongSplit PWA
+│   ├── index.html        # Main application
+│   ├── 404.html
+│   ├── js/config.js      # Supabase client config and session auth guard
+│   ├── manifest.json     # PWA manifest
+│   ├── sw.js             # Service worker (songsplit-v2 cache)
+│   ├── icons/            # PNG icons rendered from icon.svg
+│   └── vercel.json       # SPA rewrite and icon caching for the app on its own
 ├── supabase/
-│   ├── schema.sql      # Historical/bootstrap schema reference
-│   ├── README.md       # Database security notes
-│   └── migrations/     # Production-aligned schema/security changes
-└── vercel.json
+│   ├── schema.sql        # Historical/bootstrap schema reference
+│   ├── migrations/       # Production-aligned security migrations
+│   └── README.md         # Database security notes
+├── .github/workflows/
+│   └── security-boundary.yml
+├── CONTRIBUTING.md
+└── LICENSE               # GNU AGPL-3.0
 ```
 
-## What I owned
+## Running locally
 
-I defined the product problem and workflow, shaped the ownership model, data and integrity requirements, directed implementation, reviewed the application behavior, and tested the experience against how collaborators actually work in music sessions.
-
-SongSplit is an important portfolio project because it combines domain knowledge with product systems thinking: realtime collaboration, data integrity, permissions, agreement capture, exports, and a mobile-first workflow.
-
-## Local development
+The site is static, so any static file server works:
 
 ```bash
 git clone https://github.com/ElisonInc/songsplit-app.git
 cd songsplit-app
-python3 -m http.server 8000
+python3 -m http.server 8000   # or: npx serve .
 ```
 
-Then open:
+- Landing page: http://localhost:8000
+- App: http://localhost:8000/app/
 
-- `http://localhost:8000` for the landing page
-- `http://localhost:8000/app` for the application
+To run with Vercel's routing instead, use `npm install`, then `npm run dev` (this runs `vercel dev` and needs the Vercel CLI and a linked project).
 
-## Database setup
+### Database setup
 
-For a fresh environment, treat `supabase/schema.sql` as the historical/bootstrap reference and then apply the migrations in `supabase/migrations/` in order. The hardened authorization migration must be present before exposing the Data API to real users.
+1. Create a Supabase project.
+2. Use `supabase/schema.sql` as the bootstrap reference, then apply `supabase/migrations/` in chronological order.
+3. Before exposing the Data API, check grants and RLS using the anonymous role.
+4. Point `app/js/config.js` at your project URL and publishable/anon key.
 
-Configure the frontend with the Supabase URL and publishable/anon key in `app/js/config.js`. The publishable key is not the authorization boundary; database grants and RLS are.
+Never commit service-role keys, database passwords or other secrets.
+
+## Testing
+
+There is no automated test suite. Before opening a PR:
+
+- Test changes by hand in a real browser, including on mobile, since this is a PWA.
+- Run the same `grep` checks locally that the Security Boundary workflow runs.
 
 ## Deployment
 
-The project is designed for Vercel deployment with the public site and application served from the same codebase.
+The site is deployed on Vercel (`npm run deploy` runs `vercel --prod`). The root `vercel.json` serves the landing page and the `/app` routes, and sends requests for the `app.songsplit.org` host to `/app`. According to git history, the `app.songsplit.org` domain now belongs to a separate Vercel project. The exact production deployment setup isn't documented in this repo, so it is unconfirmed.
 
-```bash
-npm i -g vercel
-vercel --prod
-```
+## Known inconsistencies
 
-## Related portfolio work
+- `package.json` and `app/package.json` still list `"license": "MIT"`. The real license is AGPL-3.0 (see [LICENSE](./LICENSE)).
+- `CNAME` is an unused placeholder left over from the project's earlier "SplitSheet" name.
 
-- **[DevHouse AI](https://github.com/emorban/devhouse-ai)** — AI automation, workflow orchestration, integrations, and reliability
-- **[OneTime Studios](https://github.com/ElisonInc/onetime-studios)** — marketplace architecture, auth, payments, and booking workflows
-- **[Elison’s World](https://github.com/emorban/elison-world-website)** — interactive creative technology and frontend product work
+## Related
 
-## Portfolio context
-
-SongSplit is part of the **ELISON INC** product portfolio and represents work at the intersection of music, product design, real-time collaboration, data integrity, and digital workflow systems.
+- **[DevHouse AI](https://github.com/emorban/devhouse-ai)**: AI automation and workflow orchestration (Elison Inc.)
 
 ## License
 
-[GNU AGPL-3.0](./LICENSE) — Copyright © 2026 ELISON INC.
+[GNU AGPL-3.0](./LICENSE). Copyright © 2026 ELISON INC.
 
-Free to use, study, modify, self-host, and redistribute. If you run a modified version as a public service, the AGPL requires you to share your modifications — that keeps SongSplit and everything built on it open for the artists it protects.
+You are free to use, study, modify, self-host and redistribute SongSplit. If you run a modified version as a public service, the AGPL requires you to share your changes.
+
+---
+
+Last reviewed: 2026-11-12
